@@ -1,1 +1,5 @@
-# homesystem"
+#homesystem
+
+#git instructions
+
+#gstreamer
