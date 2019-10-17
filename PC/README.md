@@ -1,10 +1,10 @@
-#pc setup
+# pc setup
 
-#windows
+# windows
 
-##ssh
+## ssh
 install putty
 
 
 
-#ubuntu 16.04.06
+# ubuntu 16.04.06
