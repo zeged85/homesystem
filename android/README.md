@@ -1,4 +1,4 @@
-#setup android-studio w/ gstreamer
+# setup android-studio w/ gstreamer
 
 
 from link 1
