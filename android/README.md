@@ -16,6 +16,25 @@ https://stackoverflow.com/questions/45044210/gstreamer-examples-in-android-studi
 
 
 Add
+```makefile
+GSTREAMER_PLUGINS         := $(GSTREAMER_PLUGINS_CORE) $(GSTREAMER_PLUGINS_SYS) $(GSTREAMER_PLUGINS_EFFECTS) $(GSTREAMER_PLUGINS_CODECS_RESTRICTED) $(GSTREAMER_PLUGINS_NET) $(GSTREAMER_PLUGINS_PLAYBACK) $(GSTREAMER_PLUGINS_CODECS)
+```
+to Android.mk file to enable relevant plugins
 
-$(GSTREAMER_PLUGINS_CODECS_RESTRICTED)
-to Android.mk file to enable avdec_h264
+
+add permissions to enable networking
+```xml
+    <uses-sdk android:minSdkVersion="9" android:targetSdkVersion="14"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-feature android:glEsVersion="0x00020000"/>
+```
+
+
+
+change tutorial 3
+
+```c
+data->pipeline =
+      gst_parse_launch ("udpsrc port=5000 caps=\"application/x-rtp, media=video, clock-rate=90000, encoding-name=H264, sprop-parameter-sets=\\\"J2QAKKwrQCgC3YCA8SJq\\\\,KO4BNyw\\\\=\\\", payload=96\" ! queue ! rtph264depay  ! queue ! decodebin ! videoconvert ! autovideosink", &error);
+```
