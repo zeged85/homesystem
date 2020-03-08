@@ -6,7 +6,11 @@ https://stackoverflow.com/questions/54911219/gstreamer-android-tutorial-build-fa
 
 Android Studio 3.5. For Windows 10, w/ gstreamer tutorials
 
-steps
+tested w/:
+NDK r18
+binaries - gstreamer-1.0-android-universal-1.16.2
+gst-docs-1.16 (last commit https://gitlab.freedesktop.org/gstreamer/gst-docs/-/commit/af9e42d13048abedd22c034e13abc848179df72b is broken. use one before: https://gitlab.freedesktop.org/gstreamer/gst-docs/-/commit/254ce57b071da11132678b7a5b31bbf1a5b21c88
+
 
 
 from link 2
