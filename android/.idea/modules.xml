@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" group="android" />
       <module fileurl="file://$PROJECT_DIR$/android-tutorial-1/android-tutorial-1.iml" filepath="$PROJECT_DIR$/android-tutorial-1/android-tutorial-1.iml" group="android/android-tutorial-1" />
+      <module fileurl="file://$PROJECT_DIR$/android-tutorial-2/android-tutorial-2.iml" filepath="$PROJECT_DIR$/android-tutorial-2/android-tutorial-2.iml" group="android/android-tutorial-2" />
     </modules>
   </component>
 </project>

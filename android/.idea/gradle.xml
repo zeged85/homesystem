@@ -11,6 +11,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/android-tutorial-1" />
+            <option value="$PROJECT_DIR$/android-tutorial-2" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

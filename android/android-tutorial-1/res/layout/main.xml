@@ -7,8 +7,39 @@
     <TextView
         android:id="@+id/textview_info"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="338dp"
         android:gravity="center_vertical|center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+
+    <TextView
+        android:id="@+id/textview_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dip"
+        android:gravity="center_horizontal" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/button_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_play"
+            android:src="@android:drawable/ic_media_play"
+            android:text="@string/button_play" />
+
+        <ImageButton
+            android:id="@+id/button_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_stop"
+            android:src="@android:drawable/ic_media_pause"
+            android:text="@string/button_stop" />
+    </LinearLayout>
 
 </LinearLayout>
