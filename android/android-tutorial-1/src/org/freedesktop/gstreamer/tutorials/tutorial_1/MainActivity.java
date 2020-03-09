@@ -14,6 +14,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+        setButton1();
+        setButton2();
+
+
+    }
+
+    public void setButton1(){
         findViewById(R.id.btn_main).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -25,6 +32,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
     }
+
+    public void setButton2(){
+        findViewById(R.id.btn_online).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Toast.makeText(MainActivity.this, "this is a test", Toast.LENGTH_LONG).show();
+
+                Intent intent = new Intent(MainActivity.this, Login.class);
+                startActivity(intent);
+
+            }
+        });
+    }
+
 }
