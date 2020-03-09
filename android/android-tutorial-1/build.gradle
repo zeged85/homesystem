@@ -7,6 +7,7 @@ android {
     defaultConfig {
         applicationId "org.freedesktop.gstreamer.tutorials.tutorial_1"
         minSdkVersion 15
+        //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 15
         versionCode 1
         versionName "1.0"
@@ -29,7 +30,7 @@ android {
                 targets "tutorial-1"
 
                 // All archs except MIPS and MIPS64 are supported
-                abiFilters  'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
             }
         }
     }
@@ -68,6 +69,7 @@ afterEvaluate {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:appcompat-v7:23.1.1'
 }
