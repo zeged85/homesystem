@@ -7,7 +7,7 @@
     <TextView
         android:id="@+id/textview_info"
         android:layout_width="match_parent"
-        android:layout_height="338dp"
+        android:layout_height="71dp"
         android:gravity="center_vertical|center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -41,6 +41,15 @@
             android:src="@android:drawable/ic_media_pause"
             android:text="@string/button_stop" />
     </LinearLayout>
+
+
+
+    <org.freedesktop.gstreamer.tutorials.tutorial_1.GStreamerSurfaceView
+        android:id="@+id/surface_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal" />
+
 
     <Button
         android:id="@+id/btn_exit"
