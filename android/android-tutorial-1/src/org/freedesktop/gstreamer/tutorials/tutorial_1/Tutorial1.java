@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import android.view.View.OnClickListener;
+import android.view.View.OnClickListener;
 
 import org.freedesktop.gstreamer.GStreamer;
 
@@ -64,6 +65,16 @@ public class Tutorial1 extends Activity {
             }
         });
 
+        Button exit = (Button) this.findViewById(R.id.btn_exit);
+        exit.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                is_playing_desired = false;
+                nativePause();
+                nativeFinalize();
+                finish();
+            }
+        });
+
         if (savedInstanceState != null) {
             is_playing_desired = savedInstanceState.getBoolean("playing");
             Log.i ("GStreamer", "Activity created. Saved state is playing:" + is_playing_desired);
@@ -82,6 +93,14 @@ public class Tutorial1 extends Activity {
     protected void onSaveInstanceState (Bundle outState) {
         Log.d ("GStreamer", "Saving state, playing:" + is_playing_desired);
         outState.putBoolean("playing", is_playing_desired);
+    }
+
+    //Back button listener
+    @Override
+    public void onBackPressed() {
+        //stopThread = true;
+        nativeFinalize();
+        super.onBackPressed();
     }
 
     protected void onDestroy() {

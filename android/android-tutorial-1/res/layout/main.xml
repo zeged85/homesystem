@@ -42,4 +42,10 @@
             android:text="@string/button_stop" />
     </LinearLayout>
 
+    <Button
+        android:id="@+id/btn_exit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="back" />
+
 </LinearLayout>

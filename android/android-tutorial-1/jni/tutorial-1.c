@@ -331,5 +331,7 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
   (*env)->RegisterNatives (env, klass, native_methods,
       G_N_ELEMENTS (native_methods));
 
+  pthread_key_create (&current_jni_env, detach_current_thread);
+
   return JNI_VERSION_1_4;
 }
