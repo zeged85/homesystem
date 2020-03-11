@@ -424,8 +424,9 @@ JNI_OnLoad (JavaVM * vm, void *reserved)
         "Could not retrieve JNIEnv");
     return 0;
   }
+  //"org/freedesktop/gstreamer/tutorials/tutorial_1/Tutorial1"
   jclass klass = (*env)->FindClass (env,
-      "org/freedesktop/gstreamer/tutorials/tutorial_1/Tutorial1");
+      "org/freedesktop/gstreamer/tutorials/tutorial_1/GstSingle");
   (*env)->RegisterNatives (env, klass, native_methods,
       G_N_ELEMENTS (native_methods));
 

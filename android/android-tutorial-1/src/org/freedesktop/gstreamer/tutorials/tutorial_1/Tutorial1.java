@@ -16,41 +16,58 @@ import android.view.SurfaceView;
 
 import org.freedesktop.gstreamer.GStreamer;
 
-public class Tutorial1 extends Activity implements SurfaceHolder.Callback {
-    //private native String nativeGetGStreamerInfo();
-    // tutorial2
-    private native void nativeInit();     // Initialize native code, build pipeline, etc
-    private native void nativeFinalize(); // Destroy pipeline and shutdown native code
-    private native void nativePlay();     // Set pipeline to PLAYING
-    private native void nativePause();    // Set pipeline to PAUSED
-    private static native boolean nativeClassInit(); // Initialize native class: cache Method IDs for callbacks
+//import org.freedesktop.gstreamer.tutorials.tutorial_1.GstSingle;
 
-    private native void nativeSurfaceInit(Object surface);
-    private native void nativeSurfaceFinalize();
 
+
+
+public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
+//    private native void nativeInit();     // Initialize native code, build pipeline, etc
+//    private native void nativeFinalize(); // Destroy pipeline and shutdown native code
+//    private native void nativePlay();     // Set pipeline to PLAYING
+//    private native void nativePause();    // Set pipeline to PAUSED
+//    private static native boolean nativeClassInit(); // Initialize native class: cache Method IDs for callbacks
+//    private native void nativeSurfaceInit(Object surface);
+//    private native void nativeSurfaceFinalize();
     private long native_custom_data;      // Native code will use this to keep private data
 
     private boolean is_playing_desired;   // Whether the user asked to go to PLAYING
+
+    //private native String nativeGetGStreamerInfo();
+    // tutorial2
+
+    GstSingle gstArray;
 
     // Called when the activity is first created.
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+
         super.onCreate(savedInstanceState);
-
-        try {
-            GStreamer.init(this);
-        } catch (Exception e) {
-            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
-            return;
-        }
-
         setContentView(R.layout.main);
+
+        GstSingle gstSingle = new GstSingle(this);
+
+
+//        try {
+//            GStreamer.init(this);
+//        } catch (Exception e) {
+//            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+//            this.finish();
+//            return;
+//        }
+
+
+
+
+
+
+
 
 //        TextView tv = (TextView)findViewById(R.id.textview_info);
 //        tv.setText("Welcome to " + nativeGetGStreamerInfo() + " !");
 
+        gstArray = gstSingle;
 
 
 
@@ -58,68 +75,92 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback {
         ImageButton play = (ImageButton) this.findViewById(R.id.button_play);
         play.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                is_playing_desired = true;
-                nativePlay();
+                gstArray.is_playing_desired = true;
+                gstArray.nativePlay();
             }
         });
 
         ImageButton pause = (ImageButton) this.findViewById(R.id.button_stop);
         pause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                is_playing_desired = false;
-                nativePause();
+                gstArray.is_playing_desired = false;
+                gstArray.nativePause();
             }
         });
-
 
         SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
         SurfaceHolder sh = sv.getHolder();
         sh.addCallback(this);
 
 
+        if (savedInstanceState != null) {
+            gstArray.is_playing_desired = savedInstanceState.getBoolean("playing");
+            Log.i ("GStreamer", "Activity created. Saved state is playing:" + gstArray.is_playing_desired);
+        } else {
+            gstArray.is_playing_desired = false;
+            Log.i ("GStreamer", "Activity created. There is no saved state, playing: false");
+        }
+
+
 
         Button exit = (Button) this.findViewById(R.id.btn_exit);
         exit.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                is_playing_desired = false;
-                nativePause();
-                nativeFinalize();
+//                is_playing_desired = false;
+//                nativePause();
+//                nativeFinalize();
                 finish();
             }
         });
 
-        if (savedInstanceState != null) {
-            is_playing_desired = savedInstanceState.getBoolean("playing");
-            Log.i ("GStreamer", "Activity created. Saved state is playing:" + is_playing_desired);
-        } else {
-            is_playing_desired = false;
-            Log.i ("GStreamer", "Activity created. There is no saved state, playing: false");
-        }
+//        gstSingle.state(savedInstanceState);
+//        gstSingle.enableButtons();
 
         // Start with disabled buttons, until native code is initialized
         this.findViewById(R.id.button_play).setEnabled(false);
         this.findViewById(R.id.button_stop).setEnabled(false);
 
-        nativeInit();
+        gstArray.nativeInit();
+
+
     }
 
     protected void onSaveInstanceState (Bundle outState) {
-        Log.d ("GStreamer", "Saving state, playing:" + is_playing_desired);
-        outState.putBoolean("playing", is_playing_desired);
+        Log.d ("GStreamer", "Saving state, playing:" + gstArray.is_playing_desired);
+        outState.putBoolean("playing", gstArray.is_playing_desired);
     }
 
     //Back button listener
     @Override
     public void onBackPressed() {
         //stopThread = true;
-        nativeFinalize();
+        gstArray.nativeFinalize();
         super.onBackPressed();
     }
 
     protected void onDestroy() {
-        nativeFinalize();
+        gstArray.nativeFinalize();
         super.onDestroy();
     }
+
+
+    public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                               int height) {
+        Log.d("GStreamer", "Surface changed to format " + format + " width "
+                + width + " height " + height);
+        gstArray.nativeSurfaceInit(holder.getSurface());
+    }
+
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("GStreamer", "Surface created: " + holder.getSurface());
+    }
+
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d("GStreamer", "Surface destroyed");
+        gstArray.nativeSurfaceFinalize();
+    }
+
+
 
     // Called from native code. This sets the content of the TextView from the UI thread.
     private void setMessage(final String message) {
@@ -134,12 +175,12 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback {
     // Called from native code. Native code calls this once it has created its pipeline and
     // the main loop is running, so it is ready to accept commands.
     private void onGStreamerInitialized () {
-        Log.i ("GStreamer", "Gst initialized. Restoring state, playing:" + is_playing_desired);
+        Log.i ("GStreamer", "Gst initialized. Restoring state, playing:" + gstArray.is_playing_desired);
         // Restore previous playing state
-        if (is_playing_desired) {
-            nativePlay();
+        if (gstArray.is_playing_desired) {
+            gstArray.nativePlay();
         } else {
-            nativePause();
+            gstArray.nativePause();
         }
 
         // Re-enable buttons, now that GStreamer is initialized
@@ -152,28 +193,15 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback {
         });
     }
 
-    static {
-        System.loadLibrary("gstreamer_android");
-        System.loadLibrary("tutorial-1");
-        nativeClassInit();
-    }
 
 
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
-        Log.d("GStreamer", "Surface changed to format " + format + " width "
-                + width + " height " + height);
-        nativeSurfaceInit (holder.getSurface());
-    }
 
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d("GStreamer", "Surface created: " + holder.getSurface());
-    }
+//    static {
+//        System.loadLibrary("gstreamer_android");
+//        System.loadLibrary("tutorial-1");
+//        nativeClassInit();
+//    }
 
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d("GStreamer", "Surface destroyed");
-        nativeSurfaceFinalize ();
-    }
 
 
 }
