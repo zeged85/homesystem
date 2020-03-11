@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import org.freedesktop.gstreamer.GStreamer;
 
-public class GstSingle{
+public class GstSingle implements SurfaceHolder.Callback{
 
 
     public native void nativeInit();     // Initialize native code, build pipeline, etc
@@ -49,6 +49,30 @@ public class GstSingle{
 
 
     }
+
+
+
+    public void surfaceChanged(SurfaceHolder holder, int format, int width,
+                               int height) {
+        Log.d("GStreamer", "Surface changed to format " + format + " width "
+                + width + " height " + height);
+        nativeSurfaceInit(holder.getSurface());
+
+//        gstArray2.nativeSurfaceInit(holder.getSurface());
+
+
+    }
+
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("GStreamer", "Surface created: " + holder.getSurface());
+    }
+
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d("GStreamer", "Surface destroyed");
+        nativeSurfaceFinalize();
+//        gstArray2.nativeSurfaceFinalize();
+    }
+
 
 
 
@@ -97,6 +121,8 @@ public class GstSingle{
             public void run() {
                 activity.findViewById(R.id.button_play).setEnabled(true);
                 activity.findViewById(R.id.button_stop).setEnabled(true);
+                activity.findViewById(R.id.button_play2).setEnabled(true);
+                activity.findViewById(R.id.button_stop2).setEnabled(true);
             }
         });
     }

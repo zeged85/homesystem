@@ -7,7 +7,7 @@
     <TextView
         android:id="@+id/textview_info"
         android:layout_width="match_parent"
-        android:layout_height="71dp"
+        android:layout_height="wrap_content"
         android:gravity="center_vertical|center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -15,7 +15,7 @@
     <TextView
         android:id="@+id/textview_message"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="7dp"
         android:layout_marginBottom="16dip"
         android:gravity="center_horizontal" />
 
@@ -49,6 +49,45 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|center_horizontal" />
+
+
+
+<!--    -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal" >
+
+        <ImageButton
+            android:id="@+id/button_play2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_play"
+            android:src="@android:drawable/ic_media_play"
+            android:text="@string/button_play" />
+
+        <ImageButton
+            android:id="@+id/button_stop2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_stop"
+            android:src="@android:drawable/ic_media_pause"
+            android:text="@string/button_stop" />
+    </LinearLayout>
+
+
+
+    <org.freedesktop.gstreamer.GStreamerSurfaceView
+        android:id="@+id/surface_video2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|center_horizontal" />
+
+
+<!--    -->
+
 
 
     <Button

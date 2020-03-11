@@ -37,6 +37,7 @@ typedef struct _CustomData
 } CustomData;
 
 /* These global variables cache values which are not changing during execution */
+//static pthread_t gst_app_thread[2];
 static pthread_t gst_app_thread;
 static pthread_key_t current_jni_env;
 static JavaVM *java_vm;
@@ -278,6 +279,28 @@ gst_native_init (JNIEnv * env, jobject thiz)
   data->app = (*env)->NewGlobalRef (env, thiz);
   GST_DEBUG ("Created GlobalRef for app object at %p", data->app);
   pthread_create (&gst_app_thread, NULL, &app_function, data);
+
+//    CustomData *data = g_new0(CustomData, 2);
+//    SET_CUSTOM_DATA (env, thiz, custom_data_field_id, data);
+//
+//
+//    for(int stream = 0; stream < 2; stream++) {
+////        LOGV ("Created CustomData at %p", data);
+//        data->app = (*env)->NewGlobalRef(env, thiz);
+////        LOGV ("Created GlobalRef for app object at %p", data->app);
+//        switch(stream) {
+//            case 0 :
+////                sprintf(data->pipeline_content, VIDEO_PIPELINE, 5000);
+//                pthread_create(&gst_app_thread[stream], NULL, &app_function, data);
+//                break;
+//            case 1 :
+////                sprintf(data->pipeline_content, VIDEO_PIPELINE, 5001);
+//                pthread_create(&gst_app_thread[stream], NULL, &app_function, data);
+//                break;
+//        }
+//        data++;
+//    }
+
 }
 
 /* Quit the main loop, remove the native thread and free resources */

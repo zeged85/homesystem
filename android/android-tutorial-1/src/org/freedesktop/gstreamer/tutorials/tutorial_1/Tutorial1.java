@@ -21,7 +21,7 @@ import org.freedesktop.gstreamer.GStreamer;
 
 
 
-public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
+public class Tutorial1 extends Activity{
 //    private native void nativeInit();     // Initialize native code, build pipeline, etc
 //    private native void nativeFinalize(); // Destroy pipeline and shutdown native code
 //    private native void nativePlay();     // Set pipeline to PLAYING
@@ -36,7 +36,7 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
     //private native String nativeGetGStreamerInfo();
     // tutorial2
 
-    GstSingle gstArray;
+    GstSingle gstArray, gstArray2;
 
     // Called when the activity is first created.
     @Override
@@ -47,6 +47,8 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
         setContentView(R.layout.main);
 
         GstSingle gstSingle = new GstSingle(this);
+
+        GstSingle gstSingle2 = new GstSingle(this);
 
 
 //        try {
@@ -68,6 +70,7 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
 //        tv.setText("Welcome to " + nativeGetGStreamerInfo() + " !");
 
         gstArray = gstSingle;
+        gstArray2 = gstSingle2;
 
 
 
@@ -80,6 +83,14 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
             }
         });
 
+        ImageButton play2 = (ImageButton) this.findViewById(R.id.button_play2);
+        play2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                gstArray2.is_playing_desired = true;
+                gstArray2.nativePlay();
+            }
+        });
+
         ImageButton pause = (ImageButton) this.findViewById(R.id.button_stop);
         pause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -88,17 +99,35 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
             }
         });
 
+        ImageButton pause2 = (ImageButton) this.findViewById(R.id.button_stop2);
+        pause2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                gstArray2.is_playing_desired = false;
+                gstArray2.nativePause();
+            }
+        });
+
         SurfaceView sv = (SurfaceView) this.findViewById(R.id.surface_video);
         SurfaceHolder sh = sv.getHolder();
-        sh.addCallback(this);
+        sh.addCallback(gstSingle);
+
+        SurfaceView sv2 = (SurfaceView) this.findViewById(R.id.surface_video2);
+        SurfaceHolder sh2 = sv2.getHolder();
+        sh2.addCallback(gstSingle2);
 
 
         if (savedInstanceState != null) {
             gstArray.is_playing_desired = savedInstanceState.getBoolean("playing");
             Log.i ("GStreamer", "Activity created. Saved state is playing:" + gstArray.is_playing_desired);
+
+//            gstArray2.is_playing_desired = savedInstanceState.getBoolean("playing2");
+//            Log.i ("GStreamer", "Activity created. Saved state is playing2:" + gstArray2.is_playing_desired);
         } else {
             gstArray.is_playing_desired = false;
             Log.i ("GStreamer", "Activity created. There is no saved state, playing: false");
+
+//            gstArray2.is_playing_desired = false;
+//            Log.i ("GStreamer", "Activity created. There is no saved state, playing2: false");
         }
 
 
@@ -120,7 +149,11 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
         this.findViewById(R.id.button_play).setEnabled(false);
         this.findViewById(R.id.button_stop).setEnabled(false);
 
+        this.findViewById(R.id.button_play2).setEnabled(false);
+        this.findViewById(R.id.button_stop2).setEnabled(false);
+
         gstArray.nativeInit();
+        gstArray2.nativeInit();
 
 
     }
@@ -128,6 +161,9 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
     protected void onSaveInstanceState (Bundle outState) {
         Log.d ("GStreamer", "Saving state, playing:" + gstArray.is_playing_desired);
         outState.putBoolean("playing", gstArray.is_playing_desired);
+
+//        Log.d ("GStreamer", "Saving state, playing2:" + gstArray2.is_playing_desired);
+//        outState.putBoolean("playing2", gstArray2.is_playing_desired);
     }
 
     //Back button listener
@@ -135,30 +171,18 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
     public void onBackPressed() {
         //stopThread = true;
         gstArray.nativeFinalize();
+//        gstArray2.nativeFinalize();
         super.onBackPressed();
     }
 
     protected void onDestroy() {
         gstArray.nativeFinalize();
+//        gstArray2.nativeFinalize();
         super.onDestroy();
     }
 
 
-    public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
-        Log.d("GStreamer", "Surface changed to format " + format + " width "
-                + width + " height " + height);
-        gstArray.nativeSurfaceInit(holder.getSurface());
-    }
 
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d("GStreamer", "Surface created: " + holder.getSurface());
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        Log.d("GStreamer", "Surface destroyed");
-        gstArray.nativeSurfaceFinalize();
-    }
 
 
 
@@ -183,12 +207,25 @@ public class Tutorial1 extends Activity implements SurfaceHolder.Callback{
             gstArray.nativePause();
         }
 
+        if (gstArray2.is_playing_desired) {
+            gstArray2.nativePlay();
+        } else {
+            gstArray2.nativePause();
+        }
+
         // Re-enable buttons, now that GStreamer is initialized
         final Activity activity = this;
         runOnUiThread(new Runnable() {
             public void run() {
                 activity.findViewById(R.id.button_play).setEnabled(true);
                 activity.findViewById(R.id.button_stop).setEnabled(true);
+            }
+        });
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                activity.findViewById(R.id.button_play2).setEnabled(true);
+                activity.findViewById(R.id.button_stop2).setEnabled(true);
             }
         });
     }
