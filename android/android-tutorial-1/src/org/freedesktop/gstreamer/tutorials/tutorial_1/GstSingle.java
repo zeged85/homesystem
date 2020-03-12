@@ -14,7 +14,8 @@ import org.freedesktop.gstreamer.GStreamer;
 public class GstSingle implements SurfaceHolder.Callback{
 
 
-    public native void nativeInit();     // Initialize native code, build pipeline, etc
+
+    public native void nativeInit(String streamName, int latency);     // Initialize native code, build pipeline, etc
     public native void nativeFinalize(); // Destroy pipeline and shutdown native code
     public native void nativePlay();     // Set pipeline to PLAYING
     public native void nativePause();    // Set pipeline to PAUSED
@@ -29,10 +30,11 @@ public class GstSingle implements SurfaceHolder.Callback{
 
     private Tutorial1 tutorial1;
 
+private int latency;
 
 
-
-    GstSingle(Tutorial1 main){
+    GstSingle(Tutorial1 main, int idx){
+        latency=idx;
         System.out.println("in gstSingle!");
 
         tutorial1=main;
@@ -91,7 +93,11 @@ public class GstSingle implements SurfaceHolder.Callback{
         tutorial1.findViewById(R.id.button_play).setEnabled(false);
         tutorial1.findViewById(R.id.button_stop).setEnabled(false);
 
-        nativeInit();
+        nativeInit("streamName", latency);
+    }
+
+    public void init(){
+        nativeInit("streamName", latency);
     }
 
     // Called from native code. This sets the content of the TextView from the UI thread.

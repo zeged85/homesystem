@@ -46,9 +46,9 @@ public class Tutorial1 extends Activity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        GstSingle gstSingle = new GstSingle(this);
+        GstSingle gstSingle = new GstSingle(this,0);
 
-        GstSingle gstSingle2 = new GstSingle(this);
+        GstSingle gstSingle2 = new GstSingle(this,1);
 
 
 //        try {
@@ -152,8 +152,11 @@ public class Tutorial1 extends Activity{
         this.findViewById(R.id.button_play2).setEnabled(false);
         this.findViewById(R.id.button_stop2).setEnabled(false);
 
-        gstArray.nativeInit();
-        gstArray2.nativeInit();
+//        gstArray.nativeInit();
+//        gstArray2.nativeInit();
+
+        gstArray.init();
+        gstArray2.init();
 
 
     }

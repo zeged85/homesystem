@@ -34,6 +34,9 @@ typedef struct _CustomData
     gboolean initialized;         /* To avoid informing the UI multiple times about the initialization */
     GstElement *video_sink;       /* The video sink element which receives XOverlay commands */
     ANativeWindow *native_window; /* The Android native window where video will be rendered */
+
+    const char* stream_name;           /* a name indicating the particular streaming instance */
+    gint latency;                 /* the latency of this stream */
 } CustomData;
 
 /* These global variables cache values which are not changing during execution */
@@ -190,9 +193,19 @@ app_function (void *userdata)
 
   /* Build pipeline */
   //"audiotestsrc ! audioconvert ! audioresample ! autoaudiosink"
-  data->pipeline =
-          gst_parse_launch
-                  ("videotestsrc ! warptv ! videoconvert ! autovideosink", &error);
+
+  if (data->latency==0){
+      data->pipeline =
+              gst_parse_launch
+                      ("videotestsrc ! warptv ! videoconvert ! autovideosink", &error);
+  }
+  else{
+
+      data->pipeline =
+              gst_parse_launch
+                      ("videotestsrc  ! videoconvert ! autovideosink", &error);
+  }
+
   if (error) {
     gchar *message =
             g_strdup_printf ("Unable to build pipeline: %s", error->message);
@@ -268,9 +281,14 @@ app_function (void *userdata)
 
 /* Instruct the native code to create its internal data structure, pipeline and thread */
 static void
-gst_native_init (JNIEnv * env, jobject thiz)
+gst_native_init (JNIEnv * env, jobject thiz,jstring stream_name, jint latency)
 {
   CustomData *data = g_new0 (CustomData, 1);
+
+    data->stream_name =  (*env)->GetStringUTFChars(env, stream_name  , 0);
+    GST_DEBUG("Assigned Stream name:%s" , data->stream_name);
+    data->latency = (gint) latency;
+
   SET_CUSTOM_DATA (env, thiz, custom_data_field_id, data);
   GST_DEBUG_CATEGORY_INIT (debug_category, "tutorial-1", 0,
                            "Android tutorial 1");
@@ -418,13 +436,13 @@ gst_native_surface_finalize (JNIEnv * env, jobject thiz)
 }
 
 
-
+//{"nativeInit", "()V", (void *) gst_native_init},
 
 
 static JNINativeMethod native_methods[] = {
 //  {"nativeGetGStreamerInfo", "()Ljava/lang/String;",
 //      (void *) gst_native_get_gstreamer_info},
-  {"nativeInit", "()V", (void *) gst_native_init},
+  {"nativeInit", "(Ljava/lang/String;I)V", (void *) gst_native_init},
   {"nativeFinalize", "()V", (void *) gst_native_finalize},
   {"nativePlay", "()V", (void *) gst_native_play},
   {"nativePause", "()V", (void *) gst_native_pause},
