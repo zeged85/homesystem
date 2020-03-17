@@ -17,7 +17,8 @@ signal.signal(signal.SIGINT, signal_handler)
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 10000)
+#server_address = ('localhost', 10002)
+server_address = ('10.0.0.41', 10003)
 print("starting up on ",server_address[0]," port ",server_address[1])
 sock.bind(server_address)
 
@@ -39,10 +40,10 @@ try:
 				data = connection.recv(16)
 				#print >>sys.stderr, 'received "%s"' % data
 				if data:
-					print >>sys.stderr, 'sending data back to the client'
+					print("sending data back to the client")
 					connection.sendall(data)
 				else:
-					#print ("no more data from ", client_address)
+					print("no more data from ", client_address)
 					break
 			
 		finally:
