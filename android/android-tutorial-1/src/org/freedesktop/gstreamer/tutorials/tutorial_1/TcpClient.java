@@ -15,8 +15,8 @@ public class TcpClient {
     //https://stackoverflow.com/questions/38162775/really-simple-tcp-client
 
     public static final String TAG = TcpClient.class.getSimpleName();
-    public static String SERVER_IP; // = "192.168.1.8"; //server IP address
-    public static Integer SERVER_PORT;// = 1234;
+    public static String SERVER_IP = "10.0.0.41"; //server IP address
+    public static Integer SERVER_PORT = 10003;
 
     // message to send to the server
     private String mServerMessage;
@@ -29,10 +29,12 @@ public class TcpClient {
     // used to read messages from the server
     private BufferedReader mBufferIn;
 
-    TcpClient(String ip, Integer port){
-        SERVER_IP=ip;
-        SERVER_PORT=port;
-    }
+//    TcpClient(String ip, Integer port){
+//        SERVER_IP=ip;
+//        SERVER_PORT=port;
+//        System.out.println("in tcpClient const.");
+//
+//    }
 
 
     /**

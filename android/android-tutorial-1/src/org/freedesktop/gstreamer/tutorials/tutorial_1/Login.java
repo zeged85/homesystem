@@ -11,6 +11,8 @@ import org.freedesktop.gstreamer.tutorials.tutorial_1.TcpClient;
 
 public class Login extends AppCompatActivity {
 
+    private TcpClient tcpClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +44,24 @@ public class Login extends AppCompatActivity {
                 Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
 
 
-                TcpClient tcpClient = new TcpClient(IP,PORT);
+
+
+
+                //TcpClient tcpClient = new TcpClient(IP,PORT);
+
+
+
+                new ConnectTask().execute("");
+
+                //sends the message to the server
+                if (tcpClient != null) {
+                    tcpClient.sendMessage("testing");
+                }
+
+
+                if (tcpClient != null) {
+                    tcpClient.stopClient();
+                }
 
 
 //                Intent intent = new Intent(Login.this, Tutorial1.class);
