@@ -51,7 +51,7 @@ public class Login extends AppCompatActivity {
 
 
 
-                new ConnectTask().execute("");
+                new ConnectTask().execute("testing 1 2 3..."); //TODO: does this even get sent? 1 2 3..
 
                 //sends the message to the server
                 if (tcpClient != null) {

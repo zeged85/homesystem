@@ -16,7 +16,7 @@ public class TcpClient {
 
     public static final String TAG = TcpClient.class.getSimpleName();
     public static String SERVER_IP = "10.0.0.41"; //server IP address
-    public static Integer SERVER_PORT = 10003;
+    public static Integer SERVER_PORT = 10006;
 
     // message to send to the server
     private String mServerMessage;
@@ -97,6 +97,7 @@ public class TcpClient {
 
             try {
 
+                sendMessage("hello??");
                 //sends the message to the server
                 mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 
