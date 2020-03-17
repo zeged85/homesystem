@@ -18,7 +18,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
 #server_address = ('localhost', 10002)
-server_address = ('10.0.0.41', 10003)
+server_address = ('10.0.0.41', 10004)
 print("starting up on ",server_address[0]," port ",server_address[1])
 sock.bind(server_address)
 
@@ -33,12 +33,12 @@ try:
 		connection, client_address = sock.accept()
 		
 		try:
-			#print >>sys.stderr, 'connection from', client_address
+			print("connection from:", client_address)
 			
 			# Receive the data in small chunks and retransmit it
 			while True:
 				data = connection.recv(16)
-				#print >>sys.stderr, 'received "%s"' % data
+				print("received:",data)
 				if data:
 					print("sending data back to the client")
 					connection.sendall(data)
