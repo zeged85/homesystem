@@ -8,7 +8,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 
 public class TcpClient {
 
@@ -17,6 +19,7 @@ public class TcpClient {
     public static final String TAG = TcpClient.class.getSimpleName();
     public static String SERVER_IP = "10.0.0.41"; //server IP address
     public static Integer SERVER_PORT = 10006;
+    public static final Integer TIMEOUT = 10000;
 
     // message to send to the server
     private String mServerMessage;
@@ -95,11 +98,35 @@ public class TcpClient {
             Log.d("TCP Client", "C: Connecting...");
 
             //create a socket to make the connection with the server
-            Socket socket = new Socket(serverAddr, SERVER_PORT);
+
+            InetSocketAddress sockAdr = new InetSocketAddress(SERVER_IP, SERVER_PORT);
+            Socket socket = new Socket();
+//            Integer timeout = 3000;
+
+            try {
+                socket.connect(sockAdr, TIMEOUT);
+            }
+            catch (SocketTimeoutException e){
+                System.out.println("server not found yet: timeout");
+                if(socket.isConnected()){
+//                    disconnect();
+                    System.out.println("still connected");
+                }
+                System.out.println("got disconnected");
+                mMessageListener.messageReceived("server was not found after " + TIMEOUT/1000 +" seconds!");
+//                connect();
+            }
+
+
+//            Integer timeout = 3500;
+//            Socket socket = new Socket(serverAddr, SERVER_PORT, timeout);
+
+            //set timeout
+//            socket.setSoTimeout(4);
 
             try {
 
-                sendMessage("hello??");
+                //sendMessage("hello??"); //first send
                 //sends the message to the server
                 mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 
@@ -123,13 +150,16 @@ public class TcpClient {
 
             } catch (Exception e) {
                 Log.e("TCP", "S: Error", e);
+
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 socket.close();
             }
 
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             Log.e("TCP", "C: Error", e);
         }
 

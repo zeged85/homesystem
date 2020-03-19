@@ -73,9 +73,16 @@ public class Login extends AppCompatActivity {
 //                }
 
 
+                //this is not how u start two threads
+//                new CountdownTask().execute();
+//                new ConnectTask().execute("");
 
 
-                new ConnectTask().execute("");
+                //this is the way
+
+                new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                new CountdownTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
 
                 ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
                 progressBar.setVisibility(View.VISIBLE);
@@ -83,6 +90,9 @@ public class Login extends AppCompatActivity {
 //                Intent intent = new Intent(Login.this, Controller.class);
 //                startActivity(intent);
 //
+
+
+
 
             }
         });
@@ -183,5 +193,30 @@ public class Login extends AppCompatActivity {
         }
     }
 
+    public class CountdownTask extends AsyncTask<Void, Void, Void>{
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            System.out.println("starting countdown");
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void v){
+            String login_msg = "timeout";
+            Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+
+        }
+
+    }
 
 }
