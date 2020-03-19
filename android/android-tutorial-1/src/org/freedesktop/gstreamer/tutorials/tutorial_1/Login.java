@@ -13,6 +13,8 @@ import android.widget.Toast;
 public class Login extends AppCompatActivity {
 
     private TcpClient mTcpClient;
+    private String IP;
+    private Integer PORT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,18 +33,20 @@ public class Login extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-//                //IP
-//                EditText ip_et = (EditText) findViewById(R.id.ip_txt);
-//                String IP = ip_et.getText().toString();
-//
-//                //PORT
-//                EditText port_et = (EditText)findViewById(R.id.port_txt);
-//                Integer PORT = Integer.parseInt(port_et.getText() .toString());
-//
-//
-//
-//                String login_msg = "trying to login to " + IP + ":" + PORT;
-//                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+                //IP
+                EditText ip_et = (EditText) findViewById(R.id.ip_txt);
+                IP = ip_et.getText().toString();
+
+                //PORT
+                EditText port_et = (EditText)findViewById(R.id.port_txt);
+                PORT = Integer.parseInt(port_et.getText() .toString());
+
+
+
+                String login_msg = "trying to login to " + IP + ":" + PORT;
+                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+
+
 
 
 
@@ -145,7 +149,7 @@ public class Login extends AppCompatActivity {
         protected TcpClient doInBackground(String... message) {
 
             //we create a TCPClient object and
-            mTcpClient = new TcpClient(new TcpClient.OnMessageReceived() {
+            mTcpClient = new TcpClient(IP, PORT, new TcpClient.OnMessageReceived() {
                 @Override
                 //here the messageReceived method is implemented
                 public void messageReceived(String message) {

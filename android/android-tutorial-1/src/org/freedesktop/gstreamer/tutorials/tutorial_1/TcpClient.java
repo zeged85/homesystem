@@ -40,8 +40,10 @@ public class TcpClient {
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    public TcpClient(OnMessageReceived listener) {
+    public TcpClient(String ip, Integer port, OnMessageReceived listener) {
         mMessageListener = listener;
+        SERVER_IP = ip;
+        SERVER_PORT = port;
     }
 
     /**
