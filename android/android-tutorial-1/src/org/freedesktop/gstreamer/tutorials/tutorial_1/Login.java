@@ -19,6 +19,7 @@ public class Login extends AppCompatActivity {
     private Integer PORT;
     private ProgressBar progressBar;
     private AsyncTask timer;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,6 +184,16 @@ public class Login extends AppCompatActivity {
                     System.out.println("in on messageRecieved");
                     System.out.println(message);
 
+                    if (message.compareTo("server found!")==0){
+                        //progressBar.setVisibility(View.INVISIBLE);
+                        //TODO: move to onProgressUPdate
+                        // stop timer
+
+                       // timer.cancel(true);
+
+
+                        System.out.println("detected the change in status");
+                    }
 
 //                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
 
@@ -239,6 +250,15 @@ public class Login extends AppCompatActivity {
             System.out.println("in on progress");
             System.out.println(values);
             System.out.println(values[0]);
+
+            if (values[0].compareTo("server found!")==0){
+                System.out.println("finally the place to update change");
+
+                timer.cancel(true);
+                progressBar.setVisibility(View.INVISIBLE);
+
+            }
+
             //in the arrayList we add the messaged received from server
 //                arrayList.add(values[0]);
             // notify the adapter that the data set has changed. This means that new message received
@@ -259,6 +279,7 @@ public class Login extends AppCompatActivity {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
 
             return null;
         }
