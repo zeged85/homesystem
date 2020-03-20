@@ -193,7 +193,14 @@ public class TcpClient {
                 System.out.println("catching socket close");
                 Log.e("TCP", "S: Error", e);
             } catch (Exception e) {
-                Log.e("TCP", "S: Error", e);
+                if (mRun==true){
+                    Log.e("TCP", "S: Error", e);
+                }
+                else{
+                    System.out.println("socket is closed by timer2? no problem");
+                return;
+                }
+
 
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
