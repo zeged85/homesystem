@@ -10,6 +10,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
+import java.io.IOException;
+
 //https://github.com/CatalinPrata/funcodetuts/blob/master/AndroidTCPClient/app/src/main/java/ro/kazy/tcpclient/ClientActivity.java
 
 public class Login extends AppCompatActivity {
@@ -255,7 +257,13 @@ public class Login extends AppCompatActivity {
                 System.out.println("finally the place to update change");
 
                 timer.cancel(true);
-                progressBar.setVisibility(View.INVISIBLE);
+//                progressBar.setVisibility(View.INVISIBLE);
+
+                //still need to login/credentials
+
+                //hello server
+                //username
+                //password
 
             }
 

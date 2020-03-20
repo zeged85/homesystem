@@ -35,6 +35,8 @@ public class TcpClient {
     // used to read messages from the server
     private BufferedReader mBufferIn;
 
+    private Socket socket;
+
 
     // status to send to the server
     private String mServerStatus;
@@ -95,7 +97,11 @@ public class TcpClient {
         mBufferIn = null;
         mBufferOut = null;
         mServerMessage = null;
+    }
+
+    public void cancel() throws IOException {
         socket.close();
+        stopClient();
     }
 
     public void run() {
