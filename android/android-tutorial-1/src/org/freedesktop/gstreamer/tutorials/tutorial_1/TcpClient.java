@@ -35,6 +35,12 @@ public class TcpClient {
     // used to read messages from the server
     private BufferedReader mBufferIn;
 
+
+    // status to send to the server
+    private String mServerStatus;
+    // sends status received notifications
+    private OnStatusReceived mStatusListener = null;
+
 //    TcpClient(String ip, Integer port){
 //        SERVER_IP=ip;
 //        SERVER_PORT=port;
@@ -46,8 +52,9 @@ public class TcpClient {
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    public TcpClient(String ip, Integer port, OnMessageReceived listener) {
+    public TcpClient(String ip, Integer port, OnMessageReceived listener, OnStatusReceived slistener) {
         mMessageListener = listener;
+        mStatusListener = slistener;
         SERVER_IP = ip;
         SERVER_PORT = port;
     }
@@ -109,6 +116,13 @@ public class TcpClient {
 
             try {
                 socket.connect(sockAdr, TIMEOUT);
+
+                System.out.println("I am connected to a server!!");
+
+//                mMessageListener.messageReceived(mServerMessage); //TODO: status listener
+                mStatusListener.statusReceived(mServerStatus);
+
+
             }
             catch (SocketTimeoutException e){
                 System.out.println("server not found yet: timeout");
@@ -193,6 +207,13 @@ public class TcpClient {
     //class at on AsyncTask doInBackground
     public interface OnMessageReceived {
         public void messageReceived(String message);
+
+        //here the statusReceived method is implemented
+//        void statusReceived(String status);
+    }
+
+    public interface OnStatusReceived {
+        public void statusReceived(String status);
     }
 
 

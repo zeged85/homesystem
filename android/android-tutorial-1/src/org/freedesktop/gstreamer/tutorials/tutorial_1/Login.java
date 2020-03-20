@@ -183,6 +183,34 @@ public class Login extends AppCompatActivity {
 
                     publishProgress(message);
                 }
+
+
+
+//                @Override
+//                //here the statusReceived method is implemented
+//                public void statusReceived(String status) {
+//                    //this method calls the onProgressUpdate
+//                    System.out.println("in on statusRecieved");
+//                    System.out.println(status);
+//
+//
+////                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
+//
+//                    publishProgress(status);
+//                }
+
+            }, new TcpClient.OnStatusReceived() {
+                @Override
+                public void statusReceived(String status) {
+                    //this method calls the onProgressUpdate
+                    System.out.println("in on statusRecieved");
+                    System.out.println(status);
+
+
+//                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
+
+                    publishProgress(status);
+                }
             });
             mTcpClient.run();
 
