@@ -195,6 +195,11 @@ public class Login extends AppCompatActivity {
 
 
                         System.out.println("detected the change in status");
+
+
+
+
+
                     }
 
 //                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
@@ -256,7 +261,11 @@ public class Login extends AppCompatActivity {
             if (values[0].compareTo("server found!")==0){
                 System.out.println("finally the place to update change");
 
+                // stop wait looking for server
                 timer.cancel(true);
+
+                //timer for login handshake
+                timer =  new CountdownTask().execute(10000);
 //                progressBar.setVisibility(View.INVISIBLE);
 
                 //still need to login/credentials
@@ -275,15 +284,16 @@ public class Login extends AppCompatActivity {
         }
     }
 
-    public class CountdownTask extends AsyncTask<Void, Void, Void>{
+    public class CountdownTask extends AsyncTask<Integer, Void, Void>{
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected Void doInBackground(Integer... params) {
 
             System.out.println("starting countdown");
 
             try {
-                Thread.sleep(5000);
+                Integer duration = params[0];
+                Thread.sleep(duration);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
