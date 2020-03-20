@@ -18,6 +18,7 @@ public class Login extends AppCompatActivity {
     private String IP;
     private Integer PORT;
     private ProgressBar progressBar;
+    private AsyncTask timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,11 +85,13 @@ public class Login extends AppCompatActivity {
                 //this is the way
 
                 new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                new CountdownTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                timer = new CountdownTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 
                 progressBar = (ProgressBar)findViewById(R.id.progressBar);
-                progressBar.setVisibility(View.VISIBLE);
+                //progressBar.setVisibility(View.VISIBLE);
+                showProgressbar();
+
 
 //                Intent intent = new Intent(Login.this, Controller.class);
 //                startActivity(intent);
@@ -142,7 +145,8 @@ public class Login extends AppCompatActivity {
                 mTcpClient.stopClient();
             } catch (IOException e) {
                 System.out.println("DisconnectTask Exception");
-                progressBar.setVisibility(View.INVISIBLE);
+                //progressBar.setVisibility(View.INVISIBLE);
+                hideProgressbar();
                 e.printStackTrace();
             }
             mTcpClient = null;
@@ -158,7 +162,8 @@ public class Login extends AppCompatActivity {
             // notify the adapter that the data set has changed.
 //                mAdapter.notifyDataSetChanged();
 
-            progressBar.setVisibility(View.INVISIBLE);
+//            progressBar.setVisibility(View.INVISIBLE);
+            hideProgressbar();
         }
     }
 
@@ -209,7 +214,17 @@ public class Login extends AppCompatActivity {
 
 //                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
 
-                    publishProgress(status);
+
+                    //if status == ok
+
+
+                    timer.cancel(true);
+//                    cancel(CountdownTask);
+//                    CountdownTask. cancel
+                    hideProgressbar();
+
+                    publishProgress(status); //TODO: what is this?
+
                 }
             });
             mTcpClient.run();
@@ -258,6 +273,15 @@ public class Login extends AppCompatActivity {
 
         }
 
+    }
+
+    public void hideProgressbar(){
+        progressBar.setVisibility(View.INVISIBLE);
+
+    }
+
+    public void showProgressbar(){
+        progressBar.setVisibility(View.VISIBLE);
     }
 
 }
