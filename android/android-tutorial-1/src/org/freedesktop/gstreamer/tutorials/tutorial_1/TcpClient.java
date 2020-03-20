@@ -4,12 +4,14 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 public class TcpClient {
@@ -20,6 +22,7 @@ public class TcpClient {
     public static String SERVER_IP = "10.0.0.41"; //server IP address
     public static Integer SERVER_PORT = 10006;
     public static final Integer TIMEOUT = 10000;
+    public static Socket socket;
 
     // message to send to the server
     private String mServerMessage;
@@ -72,7 +75,7 @@ public class TcpClient {
     /**
      * Close the connection and release the members
      */
-    public void stopClient() {
+    public void stopClient() throws IOException {
 
         mRun = false;
 
@@ -85,6 +88,7 @@ public class TcpClient {
         mBufferIn = null;
         mBufferOut = null;
         mServerMessage = null;
+        socket.close();
     }
 
     public void run() {
@@ -100,7 +104,7 @@ public class TcpClient {
             //create a socket to make the connection with the server
 
             InetSocketAddress sockAdr = new InetSocketAddress(SERVER_IP, SERVER_PORT);
-            Socket socket = new Socket();
+            socket = new Socket();
 //            Integer timeout = 3000;
 
             try {
@@ -115,6 +119,23 @@ public class TcpClient {
                 System.out.println("got disconnected");
                 mMessageListener.messageReceived("server was not found after " + TIMEOUT/1000 +" seconds!");
 //                connect();
+            } catch (SocketException e){
+                System.out.println("caught a Socket Exception: maybe Socket is closed? ");
+                System.out.println("type: " + e.getClass().getCanonicalName());
+                System.out.println("message: " + e.getMessage());
+                Log.e("TCP", "S: Error - Socket got closed?", e);
+
+                if (e.getMessage().compareTo("Socket Closed")==0){
+                    System.out.println("I recognize that socket is close and i shouhld break op");
+                    System.out.println("message ok");
+                }
+
+                if (e.getClass().getCanonicalName().compareTo("java.net.SocketException")==0){
+                    System.out.println("I recognize that socket is close and i shouhld break op");
+                    System.out.println("java.net.SocketException ok");
+
+                    return;
+                }
             }
 
 
@@ -148,6 +169,9 @@ public class TcpClient {
 
                 Log.d("RESPONSE FROM SERVER", "S: Received Message: '" + mServerMessage + "'");
 
+            } catch (SocketException e){
+                System.out.println("catching socket close");
+                Log.e("TCP", "S: Error", e);
             } catch (Exception e) {
                 Log.e("TCP", "S: Error", e);
 

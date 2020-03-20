@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.IOException;
+
 //https://github.com/CatalinPrata/funcodetuts/blob/master/AndroidTCPClient/app/src/main/java/ro/kazy/tcpclient/ClientActivity.java
 
 public class Login extends AppCompatActivity {
@@ -15,6 +17,7 @@ public class Login extends AppCompatActivity {
     private TcpClient mTcpClient;
     private String IP;
     private Integer PORT;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +87,7 @@ public class Login extends AppCompatActivity {
                 new CountdownTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
 
-                ProgressBar progressBar = (ProgressBar)findViewById(R.id.progressBar);
+                progressBar = (ProgressBar)findViewById(R.id.progressBar);
                 progressBar.setVisibility(View.VISIBLE);
 
 //                Intent intent = new Intent(Login.this, Controller.class);
@@ -135,7 +138,13 @@ public class Login extends AppCompatActivity {
         protected Void doInBackground(Void... voids) {
 
             // disconnect
-            mTcpClient.stopClient();
+            try {
+                mTcpClient.stopClient();
+            } catch (IOException e) {
+                System.out.println("DisconnectTask Exception");
+                progressBar.setVisibility(View.INVISIBLE);
+                e.printStackTrace();
+            }
             mTcpClient = null;
 
             return null;
@@ -148,6 +157,8 @@ public class Login extends AppCompatActivity {
 //                arrayList.clear();
             // notify the adapter that the data set has changed.
 //                mAdapter.notifyDataSetChanged();
+
+            progressBar.setVisibility(View.INVISIBLE);
         }
     }
 
@@ -214,6 +225,8 @@ public class Login extends AppCompatActivity {
         protected void onPostExecute(Void v){
             String login_msg = "timeout";
             Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+            System.out.println("countdown over");
+            new DisconnectTask().execute();
 
         }
 
