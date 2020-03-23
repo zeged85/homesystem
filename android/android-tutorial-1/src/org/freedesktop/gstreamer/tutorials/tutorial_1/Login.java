@@ -8,11 +8,15 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 
-import java.io.IOException;
+//ref: https://www.tutorialspoint.com/sending-and-receiving-data-with-sockets-in-android
 
-//https://github.com/CatalinPrata/funcodetuts/blob/master/AndroidTCPClient/app/src/main/java/ro/kazy/tcpclient/ClientActivity.java
+
 
 public class Login extends AppCompatActivity {
 
@@ -22,6 +26,8 @@ public class Login extends AppCompatActivity {
     private ProgressBar progressBar;
     private AsyncTask timer;
     private ProgressBar progressBar;
+
+    private Thread Thread1 = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,45 +56,13 @@ public class Login extends AppCompatActivity {
 
 
 
-                String login_msg = "trying to login to " + IP + ":" + PORT;
-                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+//                String login_msg = "trying to login to " + IP + ":" + PORT;
+//                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
 
 
 
-
-
-
-
-                //TcpClient tcpClient = new TcpClient(IP,PORT);
-
-
-//                SingleConnection singleConnection = new SingleConnection();
-//
-//                singleConnection.connect();
-
-
-//                new ConnectTask().execute("testing 1 2 3..."); //TODO: does this even get sent? 1 2 3..
-//
-//                //sends the message to the server
-//                if (tcpClient != null) {
-//                    tcpClient.sendMessage("testing"); //Does this?
-//                }
-//
-//
-//                if (tcpClient != null) {
-//                    tcpClient.stopClient();
-//                }
-
-
-                //this is not how u start two threads
-//                new CountdownTask().execute();
-//                new ConnectTask().execute("");
-
-
-                //this is the way
-
-                new ConnectTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                timer = new CountdownTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                Thread1 = new Thread(new Thread1());
+                Thread1.start();
 
 
                 progressBar = (ProgressBar)findViewById(R.id.progressBar);
@@ -110,217 +84,91 @@ public class Login extends AppCompatActivity {
 
 
 
-
-
-    /**
-     * Sends a message using a background task to avoid doing long/network operations on the UI thread
-     */
-    public class SendMessageTask extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            // send the message
-            mTcpClient.sendMessage(params[0]);
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void nothing) {
-            super.onPostExecute(nothing);
-            // clear the data set
-            //arrayList.clear();
-            // notify the adapter that the data set has changed.
-            // mAdapter.notifyDataSetChanged();
-        }
-    }
-    /**
-     * Disconnects using a background task to avoid doing long/network operations on the UI thread
-     */
-    public class DisconnectTask extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-
-            // disconnect
+    private PrintWriter output;
+    private BufferedReader input;
+    class Thread1 implements Runnable {
+        public void run() {
+            Socket socket;
+            System.out.println("trying to connect to " + IP + " Port: " + PORT);
             try {
-                mTcpClient.stopClient();
+                socket = new Socket(IP, PORT);
+                output = new PrintWriter(socket.getOutputStream());
+                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        tvMessages.setText("Connected\n");
+                        System.out.println("Connected!");
+                        String login_msg = "Connected!";
+
+                        progressBar.setVisibility(View.INVISIBLE);
+                        Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+                    }
+                });
+                new Thread(new Thread2()).start();
             } catch (IOException e) {
-                System.out.println("DisconnectTask Exception");
-                //progressBar.setVisibility(View.INVISIBLE);
-                hideProgressbar();
                 e.printStackTrace();
             }
-            mTcpClient = null;
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void nothing) {
-            super.onPostExecute(nothing);
-            // clear the data set
-//                arrayList.clear();
-            // notify the adapter that the data set has changed.
-//                mAdapter.notifyDataSetChanged();
-
-//            progressBar.setVisibility(View.INVISIBLE);
-            hideProgressbar();
         }
     }
 
 
 
-    public class ConnectTask extends AsyncTask<String, String, TcpClient> {
-
+    class Thread2 implements Runnable {
         @Override
-        protected TcpClient doInBackground(String... message) {
-
-            //we create a TCPClient object and
-            mTcpClient = new TcpClient(IP, PORT, new TcpClient.OnMessageReceived() {
-                @Override
-                //here the messageReceived method is implemented
-                public void messageReceived(String message) {
-                    //this method calls the onProgressUpdate
-                    System.out.println("in on messageRecieved");
+        public void run() {
+            while (true) {
+                try {
+                    final String message = input.readLine();
                     System.out.println(message);
-
-                    if (message.compareTo("server found!")==0){
-                        //progressBar.setVisibility(View.INVISIBLE);
-                        //TODO: move to onProgressUPdate
-                        // stop timer
-
-                       // timer.cancel(true);
-
-
-                        System.out.println("detected the change in status");
-
-
-
-
-
+                    if (message != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+//                                tvMessages.append("server: " + message + "\n");
+                                String login_msg = message;
+                                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    } else {
+                        Thread1 = new Thread(new Thread1());
+                        Thread1.start();
+                        return;
                     }
-
-//                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
-
-                    publishProgress(message);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
+        }
+    }
 
 
 
-//                @Override
-//                //here the statusReceived method is implemented
-//                public void statusReceived(String status) {
-//                    //this method calls the onProgressUpdate
-//                    System.out.println("in on statusRecieved");
-//                    System.out.println(status);
-//
-//
-////                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
-//
-//                    publishProgress(status);
-//                }
 
-            }, new TcpClient.OnStatusReceived() {
+    class Thread3 implements Runnable {
+        private String message;
+        Thread3(String message) {
+            this.message = message;
+        }
+        @Override
+        public void run() {
+            output.write(message);
+            output.flush();
+            runOnUiThread(new Runnable() {
                 @Override
-                public void statusReceived(String status) {
-                    //this method calls the onProgressUpdate
-                    System.out.println("in on statusRecieved");
-                    System.out.println(status);
-
-
-//                    Toast.makeText(Login.this,message , Toast.LENGTH_LONG).show();
-
-
-                    //if status == ok
-
-
-                    timer.cancel(true);
-//                    cancel(CountdownTask);
-//                    CountdownTask. cancel
-                    hideProgressbar();
-
-                    publishProgress(status); //TODO: what is this?
-
+                public void run() {
+//                    tvMessages.append("client: " + message + "\n");
+//                    etMessage.setText("");
+                    String login_msg = message;
+                    Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
                 }
             });
-            mTcpClient.run();
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            super.onProgressUpdate(values);
-
-            System.out.println("in on progress");
-            System.out.println(values);
-            System.out.println(values[0]);
-
-            if (values[0].compareTo("server found!")==0){
-                System.out.println("finally the place to update change");
-
-                // stop wait looking for server
-                timer.cancel(true);
-
-                //timer for login handshake
-                timer =  new CountdownTask().execute(10000);
-//                progressBar.setVisibility(View.INVISIBLE);
-
-                //still need to login/credentials
-
-                //hello server
-                //username
-                //password
-
-            }
-
-            //in the arrayList we add the messaged received from server
-//                arrayList.add(values[0]);
-            // notify the adapter that the data set has changed. This means that new message received
-            // from server was added to the list
-//                mAdapter.notifyDataSetChanged();
         }
     }
 
-    public class CountdownTask extends AsyncTask<Integer, Void, Void>{
-
-        @Override
-        protected Void doInBackground(Integer... params) {
-
-            System.out.println("starting countdown");
-
-            try {
-                Integer duration = params[0];
-                Thread.sleep(duration);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
 
 
-            return null;
-        }
 
 
-        @Override
-        protected void onPostExecute(Void v){
-            String login_msg = "timeout";
-            Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
-            System.out.println("countdown over");
-            new DisconnectTask().execute();
-
-        }
-
-    }
-
-    public void hideProgressbar(){
-        progressBar.setVisibility(View.INVISIBLE);
-
-    }
-
-    public void showProgressbar(){
-        progressBar.setVisibility(View.VISIBLE);
-    }
 
 }

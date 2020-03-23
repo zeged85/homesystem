@@ -167,7 +167,7 @@ public class TcpClient {
 
             try {
 
-                //sendMessage("hello??"); //first send
+                sendMessage("hello??"); //first send
                 //sends the message to the server
                 mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 
