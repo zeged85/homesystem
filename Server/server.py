@@ -1,5 +1,8 @@
 #!/usr/bin/env python
-print("hello");
+
+#ref: https://pymotw.com/2/socket/tcp.html
+
+print("hello")
 
 import socket
 import sys
@@ -18,7 +21,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
 #server_address = ('localhost', 10002)
-server_address = ('10.0.0.41', 10004)
+server_address = ('10.0.0.41', 10006)
 print("starting up on ",server_address[0]," port ",server_address[1])
 sock.bind(server_address)
 
@@ -34,6 +37,9 @@ try:
 		
 		try:
 			print("connection from:", client_address)
+			hello_msg = "welcome client!"
+			connection.sendall(hello_msg.encode())
+			#connection.send(hello_msg.encode())
 			
 			# Receive the data in small chunks and retransmit it
 			while True:
