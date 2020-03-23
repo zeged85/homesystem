@@ -20,7 +20,7 @@ import java.net.Socket;
 
 public class Login extends AppCompatActivity {
 
-    private TcpClient mTcpClient;
+    //private TcpClient mTcpClient;
     private String IP;
     private Integer PORT;
     private ProgressBar progressBar;
