@@ -4,11 +4,15 @@ import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 public class TcpClient {
 
@@ -16,7 +20,9 @@ public class TcpClient {
 
     public static final String TAG = TcpClient.class.getSimpleName();
     public static String SERVER_IP = "10.0.0.41"; //server IP address
-    public static Integer SERVER_PORT = 10003;
+    public static Integer SERVER_PORT = 10006;
+    public static final Integer TIMEOUT = 10000;
+    public static Socket socket;
 
     // message to send to the server
     private String mServerMessage;
@@ -29,6 +35,14 @@ public class TcpClient {
     // used to read messages from the server
     private BufferedReader mBufferIn;
 
+    private Socket socket;
+
+
+    // status to send to the server
+    private String mServerStatus;
+    // sends status received notifications
+    private OnStatusReceived mStatusListener = null;
+
 //    TcpClient(String ip, Integer port){
 //        SERVER_IP=ip;
 //        SERVER_PORT=port;
@@ -40,8 +54,11 @@ public class TcpClient {
     /**
      * Constructor of the class. OnMessagedReceived listens for the messages received from server
      */
-    public TcpClient(OnMessageReceived listener) {
+    public TcpClient(String ip, Integer port, OnMessageReceived listener, OnStatusReceived slistener) {
         mMessageListener = listener;
+        mStatusListener = slistener;
+        SERVER_IP = ip;
+        SERVER_PORT = port;
     }
 
     /**
@@ -67,7 +84,7 @@ public class TcpClient {
     /**
      * Close the connection and release the members
      */
-    public void stopClient() {
+    public void stopClient() throws IOException {
 
         mRun = false;
 
@@ -82,6 +99,11 @@ public class TcpClient {
         mServerMessage = null;
     }
 
+    public void cancel() throws IOException {
+        socket.close();
+        stopClient();
+    }
+
     public void run() {
 
         mRun = true;
@@ -93,10 +115,59 @@ public class TcpClient {
             Log.d("TCP Client", "C: Connecting...");
 
             //create a socket to make the connection with the server
-            Socket socket = new Socket(serverAddr, SERVER_PORT);
+
+            InetSocketAddress sockAdr = new InetSocketAddress(SERVER_IP, SERVER_PORT);
+            socket = new Socket();
+//            Integer timeout = 3000;
+
+            try {
+                socket.connect(sockAdr, TIMEOUT);
+
+                System.out.println("I am connected to a server!!");
+
+//                mMessageListener.messageReceived(mServerMessage); //TODO: status listener
+                mStatusListener.statusReceived(mServerStatus);
+
+
+            }
+            catch (SocketTimeoutException e){
+                System.out.println("server not found yet: timeout");
+                if(socket.isConnected()){
+//                    disconnect();
+                    System.out.println("still connected");
+                }
+                System.out.println("got disconnected");
+                mMessageListener.messageReceived("server was not found after " + TIMEOUT/1000 +" seconds!");
+//                connect();
+            } catch (SocketException e){
+                System.out.println("caught a Socket Exception: maybe Socket is closed? ");
+                System.out.println("type: " + e.getClass().getCanonicalName());
+                System.out.println("message: " + e.getMessage());
+                Log.e("TCP", "S: Error - Socket got closed?", e);
+
+                if (e.getMessage().compareTo("Socket Closed")==0){
+                    System.out.println("I recognize that socket is close and i shouhld break op");
+                    System.out.println("message ok");
+                }
+
+                if (e.getClass().getCanonicalName().compareTo("java.net.SocketException")==0){
+                    System.out.println("I recognize that socket is close and i shouhld break op");
+                    System.out.println("java.net.SocketException ok");
+
+                    return;
+                }
+            }
+
+
+//            Integer timeout = 3500;
+//            Socket socket = new Socket(serverAddr, SERVER_PORT, timeout);
+
+            //set timeout
+//            socket.setSoTimeout(4);
 
             try {
 
+                sendMessage("hello??"); //first send
                 //sends the message to the server
                 mBufferOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
 
@@ -118,15 +189,28 @@ public class TcpClient {
 
                 Log.d("RESPONSE FROM SERVER", "S: Received Message: '" + mServerMessage + "'");
 
-            } catch (Exception e) {
+            } catch (SocketException e){
+                System.out.println("catching socket close");
                 Log.e("TCP", "S: Error", e);
+            } catch (Exception e) {
+                if (mRun==true){
+                    Log.e("TCP", "S: Error", e);
+                }
+                else{
+                    System.out.println("socket is closed by timer2? no problem");
+                return;
+                }
+
+
             } finally {
                 //the socket must be closed. It is not possible to reconnect to this socket
                 // after it is closed, which means a new socket instance has to be created.
                 socket.close();
             }
 
-        } catch (Exception e) {
+        }
+
+        catch (Exception e) {
             Log.e("TCP", "C: Error", e);
         }
 
@@ -136,6 +220,13 @@ public class TcpClient {
     //class at on AsyncTask doInBackground
     public interface OnMessageReceived {
         public void messageReceived(String message);
+
+        //here the statusReceived method is implemented
+//        void statusReceived(String status);
+    }
+
+    public interface OnStatusReceived {
+        public void statusReceived(String status);
     }
 
 

@@ -18,6 +18,11 @@ import org.freedesktop.gstreamer.GStreamer;
 
 //import org.freedesktop.gstreamer.tutorials.tutorial_1.GstSingle;
 
+//ref: https://blogfarad.wordpress.com/2017/03/09/wireless-multi-camera-surveillance-in-android-using-gstreamer/
+//ref: https://blogfarad.wordpress.com/2017/03/05/wireless-streaming-in-android-using-gstreamer/
+//ref: https://github.com/crs4/most-streaming/blob/master/examples/android/DualStreamingExample/jni/tutorial-dual_streaming.c
+//ref: https://github.com/crs4/most-streaming/blob/master/examples/android/DualStreamingExample/src/most/streaming/example/GStreamerBackend.java
+//ref: https://github.com/crs4/most-streaming/tree/master/android/android_studio/MOSTStreamingLib/MOSTStreaming/src/main/java/it/crs4/most/streaming
 
 
 
