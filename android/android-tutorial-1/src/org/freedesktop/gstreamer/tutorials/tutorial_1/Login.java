@@ -28,6 +28,9 @@ public class Login extends AppCompatActivity {
     private ProgressBar progressBar;
 
     private Thread Thread1 = null;
+    private Thread2 runningThread = null;
+
+    private Socket socket;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,10 +39,38 @@ public class Login extends AppCompatActivity {
 
 
         setButton1();
+        setButton2();
+        setButton3();
 
     }
 
+public void setButton3(){
+    findViewById(R.id.ping_btn).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            System.out.println("sending ping to server");
+            new Thread(new Thread3("ping")).start();
+        }
+    });
+}
 
+public void setButton2(){
+        findViewById(R.id.logout_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Thread1 != null){
+                    System.out.println("Thread is not null");
+                }
+                else{
+                    System.out.println("Thread is null");
+                }
+                if (runningThread != null){
+                    System.out.println("Shutting down");
+                    runningThread.shutdown();
+                }
+            }
+        });
+}
 
     public void setButton1(){
         findViewById(R.id.login_btn).setOnClickListener(new View.OnClickListener() {
@@ -88,7 +119,8 @@ public class Login extends AppCompatActivity {
     private BufferedReader input;
     class Thread1 implements Runnable {
         public void run() {
-            Socket socket;
+            System.out.println("Thread1 started");
+            //Socket socket;
             System.out.println("trying to connect to " + IP + " Port: " + PORT);
             try {
                 socket = new Socket(IP, PORT);
@@ -105,19 +137,25 @@ public class Login extends AppCompatActivity {
                         Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
                     }
                 });
-                new Thread(new Thread2()).start();
+                runningThread = new Thread2();
+                new Thread(runningThread).start();
+                //Thread2.start();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            System.out.println("Thread1 finished");
         }
     }
 
 
 
     class Thread2 implements Runnable {
+        private volatile boolean exit = false;
         @Override
         public void run() {
-            while (true) {
+            System.out.println("Thread2 started");
+            while (!exit) {
                 try {
                     final String message = input.readLine();
                     System.out.println(message);
@@ -138,8 +176,22 @@ public class Login extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                System.out.println("Thread2 finished");
             }
         }
+        //@Override
+        public void shutdown(){
+            System.out.println("Shutting Down");
+            exit = true;
+            if (socket != null){
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
     }
 
 
@@ -148,10 +200,12 @@ public class Login extends AppCompatActivity {
     class Thread3 implements Runnable {
         private String message;
         Thread3(String message) {
+            System.out.println("Thread3 created");
             this.message = message;
         }
         @Override
         public void run() {
+            System.out.println("Thread3 started");
             output.write(message);
             output.flush();
             runOnUiThread(new Runnable() {
@@ -159,10 +213,11 @@ public class Login extends AppCompatActivity {
                 public void run() {
 //                    tvMessages.append("client: " + message + "\n");
 //                    etMessage.setText("");
-                    String login_msg = message;
-                    Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+                    //String login_msg = message;
+                    //Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
                 }
             });
+            System.out.println("Thread3 finished");
         }
     }
 

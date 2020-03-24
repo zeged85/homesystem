@@ -92,17 +92,18 @@
         android:id="@+id/login_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="167dp"
-        android:layout_marginLeft="167dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="24dp"
-        android:layout_marginEnd="167dp"
-        android:layout_marginRight="167dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         android:text="Login"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/logout_btn"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/checkBox2" />
+        app:layout_constraintTop_toBottomOf="@+id/checkBox2"
+        app:layout_constraintVertical_bias="1.0" />
 
     <CheckBox
         android:id="@+id/checkBox"
@@ -133,13 +134,45 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="179dp"
         android:layout_marginLeft="179dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="184dp"
         android:layout_marginRight="184dp"
         android:layout_marginBottom="24dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_btn" />
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/logout_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Logout"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        app:layout_constraintEnd_toStartOf="@+id/ping_btn"
+        app:layout_constraintStart_toEndOf="@+id/login_btn"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox2"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/ping_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
+        android:text="Ping"
+        app:layout_constraintBottom_toTopOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/logout_btn"
+        app:layout_constraintTop_toBottomOf="@+id/checkBox2"
+        app:layout_constraintVertical_bias="1.0" />
 </android.support.constraint.ConstraintLayout>
