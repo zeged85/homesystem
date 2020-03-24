@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
 #ref: https://www.youtube.com/watch?v=6jteAOmdsYg&list=PLhTjy8cBISErYuLZUvVOYsR1giva2payF
+#ref: https://github.com/mayankgureja/fullDuplexTCPChatServerClient/blob/master/fullDuplexTCPChatServer.py
+#ref: https://steelkiwi.com/blog/working-tcp-sockets/
+
 
 import socket
 import sys
@@ -22,6 +25,15 @@ queue = Queue.Queue()
 inputs = []
 outputs = []
 message_queues = {}
+
+lock = threading.Lock() 
+
+
+
+#lock.acquire()
+#lock.release()
+
+
 
 
 
@@ -69,6 +81,8 @@ def accepting_connection():
 
     while inputs:
         readable, writable, exceptional = select.select(inputs, outputs, inputs)
+        lock.acquire()
+           
         for s in readable:
             if s is server:
                 connection, client_address = s.accept()
@@ -110,6 +124,7 @@ def accepting_connection():
             s.close()
             del message_queues[s]
 
+        lock.release()
 
 
 
@@ -237,7 +252,17 @@ def send_target_command(conn):
                 #print(cmd)
                 #hello_msg = "what's up??\n"
                 #conn.sendall(hello_msg.encode())
-                conn.sendall(str.encode(cmd+"\n"))
+                
+
+                msg = cmd+"\n"
+                send_message(conn, msg)
+                #conn.sendall(msg)
+
+                #str.encode(cmd+"\n")
+                #message_queues[conn].put(str.encode("test\n"))
+                #if conn not in outputs:
+                #    outputs.append(conn)
+                
 
 
 
@@ -248,6 +273,10 @@ def send_target_command(conn):
             break
 
 
+def send_message(conn, message):
+    lock.acquire()
+    conn.sendall(str.encode(message))
+    lock.release()
 
 # Create worker threads
 def create_workers():
