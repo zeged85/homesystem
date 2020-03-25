@@ -14,6 +14,8 @@ import queue as Queue
 
 import select
 
+import json
+
 NUMBERS_OF_THREADS = 2
 JOB_NUMBER = [1, 2]
 #queue = Queue()
@@ -97,6 +99,20 @@ def accepting_connection():
                     #if s not in outputs:
                     #    outputs.append(s)
                     print(str(s.getpeername()) + " :", data)
+                    try:
+                        y = json.loads(data)
+                        print(y)
+                        
+                    except json.JSONDecodeError as err:
+                        print("ERROR: JSON Parse fail:")
+                        print(err)
+
+                    try:
+                        print(y['ID'])
+                    except KeyError as err:
+                        print("ERROR: JSON key not found:")
+                        print(err)  
+
                 else: # Client left / ubruptly?
                 
                     print("DEBUG: Client " + str(s.getpeername()) + " left!")

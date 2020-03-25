@@ -8,7 +8,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "server5.py", //"${file}",
+            "program": "serverBig.py", //"${file}",
             "console": "integratedTerminal"
         }
     ]
