@@ -3,10 +3,14 @@ package org.freedesktop.gstreamer.tutorials.tutorial_1;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,7 +45,30 @@ public class Login extends AppCompatActivity {
         setButton1();
         setButton2();
         setButton3();
+/*
+        if (savedInstanceState != null) {
+            gstArray.is_playing_desired = savedInstanceState.getBoolean("playing");
+            Log.i ("myLogin", "Activity created. Saved state is playing:" + gstArray.is_playing_desired);
 
+//            gstArray2.is_playing_desired = savedInstanceState.getBoolean("playing2");
+//            Log.i ("GStreamer", "Activity created. Saved state is playing2:" + gstArray2.is_playing_desired);
+        } else {
+            gstArray.is_playing_desired = false;
+            Log.i ("myLogin", "Activity created. There is no saved state, playing: false");
+
+//            gstArray2.is_playing_desired = false;
+//            Log.i ("GStreamer", "Activity created. There is no saved state, playing2: false");
+        }
+*/
+    }
+
+
+    protected void onSaveInstanceState (Bundle outState) {
+       // Log.d ("GStreamer", "Saving state, playing:" + gstArray.is_playing_desired);
+        //outState.putBoolean("playing", gstArray.is_playing_desired);
+
+//        Log.d ("GStreamer", "Saving state, playing2:" + gstArray2.is_playing_desired);
+//        outState.putBoolean("playing2", gstArray2.is_playing_desired);
     }
 
 public void setButton3(){
@@ -49,7 +76,24 @@ public void setButton3(){
         @Override
         public void onClick(View view) {
             System.out.println("sending ping to server");
-            new Thread(new Thread3("ping")).start();
+            //new Thread(new Thread3("ping")).start();
+
+
+            JSONObject postData = new JSONObject();
+            try{
+                postData.put("ID", 1234);
+                postData.put("type", "response");
+                postData.put("text", "hello\n");
+
+                postData.put("type2", "command");
+                postData.put("target", "home0/room2/light1/");
+                postData.put("payload", "ON");
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+
+            new Thread(new Thread3(postData.toString())).start();
+
         }
     });
 }
@@ -166,6 +210,24 @@ public void setButton2(){
 //                                tvMessages.append("server: " + message + "\n");
                                 String login_msg = message;
                                 Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+
+
+                                try {
+                                    JSONObject data = new JSONObject(message);
+
+                                    try{
+                                        String ter = data.getString("terminal");
+                                    } catch (JSONException e) {
+                                        System.out.println("terminal not found");
+                                        e.printStackTrace();
+                                    }
+
+
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
                         });
                     } else {
