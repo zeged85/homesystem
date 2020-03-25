@@ -83,7 +83,7 @@ public void setButton3(){
             try{
                 postData.put("ID", 1234);
                 postData.put("type", "response");
-                postData.put("text", "hello\n");
+                postData.put("text", "update device via adb wifi test2\n");
 
                 postData.put("type2", "command");
                 postData.put("target", "home0/room2/light1/");
