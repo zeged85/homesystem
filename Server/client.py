@@ -6,7 +6,7 @@ import subprocess
 
 s = socket.socket()
 host = "10.0.0.41"
-port = 9997
+port = 9997  
 
 s.connect((host,port))
 

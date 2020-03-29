@@ -16,8 +16,12 @@ import select
 
 import json
 
-NUMBERS_OF_THREADS = 2
-JOB_NUMBER = [1, 2]
+import db as DB
+from msgFrame import * #encode, decode, createMessage, address_to_bytes, bytes_to_address
+
+
+NUMBERS_OF_THREADS = 3
+JOB_NUMBER = [1, 2, 3]
 #queue = Queue()
 queue = Queue.Queue()
 #all_connections = []
@@ -28,15 +32,38 @@ inputs = []
 outputs = []
 message_queues = {}
 
-lock = threading.Lock() 
+#lock = threading.Lock() 
 
+#HEADERSIZE = 20
+
+clients = {}
+
+import ipaddress
 
 
 #lock.acquire()
 #lock.release()
 
 
+#server_available = threading.Event()
+#server_available.wait()
+#server_available.set()
 
+
+# get host public ip
+def getHost():
+    global host
+    host = ""
+    #try:
+    #    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #    s.connect(('10.255.255.255', 8765)) # random addr. to resolve real see ref: https://stackoverflow.com/questions/166506/finding-local-ip-addresses-using-pythons-stdlib
+    #    host = s.getsockname()[0]
+    #    #print(s.getsockname()[0])
+    #    s.close()
+    #except:
+    #    print("can't get real ip")
+    #finally:
+    #    s.close()
 
 
 # Create a socket (connet two computers)
@@ -45,7 +72,6 @@ def create_socket():
         global host
         global port
         global server
-        host = ""
         port = 10006
         #server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server = socket.socket()
@@ -58,9 +84,12 @@ def bind_socket():
         global host
         global port
         global server
+
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         
         print("Binding the port:" + str(port))
 
+        print("Host IP :" + host)
         server.bind((host,port))
         server.listen(5)
         inputs.append(server)
@@ -76,10 +105,9 @@ def bind_socket():
 # Closing previous connections when server.py file is restarted
 
 def accepting_connection():
-
     while inputs:
-        readable, writable, exceptional = select.select(inputs, outputs, inputs,5)
-        lock.acquire()
+        readable, writable, exceptional = select.select(inputs, outputs, inputs)
+        #lock.acquire()
            
         for s in readable:
             if s is server:
@@ -90,28 +118,50 @@ def accepting_connection():
                 connection.setblocking(0)
                 inputs.append(connection)
                 message_queues[connection] = Queue.Queue()
-            #elif s is terminal:
-            #    print("Terminal read")
-            else:
+
+                # welcome message
+
+                msg = createMessage("welcome to the server", "response","")
+                obj = encode(msg)
+                connection.send(obj)
+                #msg = f"welcome to the server"
+                #obj = {
+                #    "message":msg,
+                #    "type":"response"
+                #}
+                #jsonObj = json.dumps(obj)
+                #rep = f'{len(jsonObj):<10}' + jsonObj
+                #connection.send(bytes(rep,"utf-8"))
+
+                # add to clients dictionary
+                clients[str(list(connection.getpeername()))]=connection
+                #print(f"adding {str(list(connection.getpeername()))} to clients dic")
+
+            elif s is terminal:
+                print("Terminal read")
                 data = s.recv(1024)
                 if data:
-                    #message_queues[s].put(data) # Ak - Automatic replay to clients sending a message
-                    #if s not in outputs:
-                    #    outputs.append(s)
-                    print(str(s.getpeername()) + " :", data)
-                    try:
-                        y = json.loads(data)
-                        print(y)
-                        
-                    except json.JSONDecodeError as err:
-                        print("ERROR: JSON Parse fail:")
-                        print(err)
+                    pass
 
-                    try:
-                        print(y['ID'])
-                    except KeyError as err:
-                        print("ERROR: JSON key not found:")
-                        print(err)  
+            elif s is db:
+                print("SRV: DB>client")
+                data = s.recv(1024)
+                if data:
+                    print(data)
+
+                    b_address = data[:ADDRESSSIZE]
+                    ip, port = bytes_to_address(b_address)
+                    #print(clients)
+                    print(f"['{ip}', {port}]")
+                    clientAddress = f"['{ip}', {port}]"
+                    clientSocket =  clients[clientAddress]
+
+                    #print(f"got my socket {clientSocket.getpeername()}")
+
+                    clientMsgQueue =  message_queues[clientSocket]
+                    clientMsgQueue.put(data[ADDRESSSIZE:])
+                    if clientSocket not in outputs:
+                        outputs.append(clientSocket)
 
                 else: # Client left / ubruptly?
                 
@@ -119,8 +169,92 @@ def accepting_connection():
                     if s in outputs:
                         outputs.remove(s)
                     inputs.remove(s)
+                    del clients[str(list(s.getpeername()))]
                     s.close()
                     del message_queues[s]
+
+
+            else:
+                data = s.recv(1024)
+                if data:
+                    print(f"message from {s.getpeername()}")
+                    address = s.getpeername()
+                    
+                    b_ip, b_port = address_to_bytes(address)
+                    #print(f"ip : {b_ip}")
+                    #print(f"len of ip is {len(b_ip)}")
+                    #print(f"port : {b_port}")
+                    #print(f"len of port is {len(b_port)}")
+                    #ip, port = bytes_to_address(b_ip+b_port)
+                    #print(f"after ip : {ip}")
+                    #print(f"after port : {port}")
+
+                    preamble = b_ip + b_port
+
+
+                       
+       
+                    #print(f"address length {len(bytes(s.getpeername()))}")
+                    #print(f'{bytes(s.getpeername())}')
+                    message_queues[db].put(preamble + data)
+                    if db not in outputs:
+                        outputs.append(db)
+                    #message_queues[s].put(data) # Ak - Automatic replay to clients sending a message
+                    #if s not in outputs:
+                    #    outputs.append(s)
+                    '''
+                    print(str(s.getpeername()) + " :", data)
+                    try:
+                        y = json.loads(data)
+                        print(y)
+                        try:
+                            print(y['message'])
+                            if y['message']=="ping":
+                                print(f"terminal wants server to ping " + str(y['target']))
+                                ping = {
+                                    "message":"ping",
+                                    "type":"request",
+                                }
+                                JsonObj = json.dumps(ping)
+                                target = y['target']
+                                print(f"looking for {str(target)} in {clients.keys()}")
+
+                                msg = JsonObj
+                                rep = f'{len(msg):<10}' + msg
+
+                                c = clients[str(target)]
+                                c.sendall(bytes(rep,"utf-8"))
+
+                        except KeyError as err:
+                            print("ERROR: JSON key not found:")
+                            print(err)  
+
+
+                        try:
+                            print(y['type'])
+                            
+                        except KeyError as err:
+                            print("ERROR: JSON key not found:")
+                            print(err)  
+
+
+                        
+                    except json.JSONDecodeError as err:
+                        print("ERROR: JSON Parse fail:",err)
+                        #print(err)
+                    '''
+                   
+
+                else: # Client left / ubruptly?
+                
+                    print("DEBUG: Client " + str(s.getpeername()) + " left!")
+                    if s in outputs:
+                        outputs.remove(s)
+                    inputs.remove(s)
+                    del clients[str(list(s.getpeername()))]
+                    s.close()
+                    del message_queues[s]
+                    
     
         for s in writable:
 
@@ -142,7 +276,10 @@ def accepting_connection():
             s.close()
             del message_queues[s]
 
-        lock.release()
+        #lock.release()
+        #print("a")
+        #print("",flush=True)
+        #print("server>",end="", flush=True)
 
 
 
@@ -178,6 +315,18 @@ def accepting_connection():
 #            print("ERROR accepting connection")
 
 
+
+
+
+# Data to JSON to Dictionary
+def dataToDic(data):
+    try:
+        jsonStr = json.loads(data)
+
+    except json.JSONDecodeError as err:
+        print("ERROR: JSON Parse fail:")
+        print(err)
+
 # 2nd thread functions - 1) See all the clients 2) Select a client 3) Send commands to the connected client
 # Interactive prompt for sending commands
 # ClientID, name
@@ -202,7 +351,7 @@ def start_turtle():
     terminal_socket = s1
 
     while True:
-        cmd = input('turtle>')
+        cmd = input('server>')
 
         if cmd == 'list':
             list_connections()
@@ -216,6 +365,8 @@ def start_turtle():
             if conn is not None:
                 send_target_command(conn)
 
+        elif cmd == '':
+            continue
         else:
             print("command not recognized")
 
@@ -236,8 +387,16 @@ def list_connections():
             if (conn is server) or (conn is terminal):
                 continue
             print("pinging " + str(i))
-            conn.send(str.encode(' '))
+
+            #conn.send(str.encode(' '))
             #conn.recv(201480)
+
+            #send_message(conn, "ping")
+            msg = createMessage("ping","request",conn.getpeername())
+            b_msg = encode(msg)
+            terminal_socket.sendall(b_msg)
+            wait_for_message()
+
         except:
             print("ping failed to user")
             del inputs[i]
@@ -249,6 +408,7 @@ def list_connections():
         results = str(i) + "     " + str(inputs[i].getpeername()[0]) + "     " + str(inputs[i].getpeername()[1]) + "\n"
 
     print("---- Clients ----")
+    print("-ID-------IP--------PORT--------PING----")
     print(results)
 
 
@@ -314,10 +474,55 @@ def send_target_command(conn):
             break
 
 
-def send_message(conn, message):
-    lock.acquire()
-    conn.sendall(str.encode(message))
-    lock.release()
+#def send_message(conn, message):
+#    #lock.acquire()
+#    ##conn.sendall(str.encode(message))
+#    toSendObj = {
+#        "message":"ping",
+#        "type":"request",
+#        "target":conn.getpeername()
+#    }
+#    toSendJson = json.dumps(toSendObj)
+#    terminal_socket.sendall(bytes(toSendJson,"utf-8"))
+#    #lock.release()
+
+def wait_for_message():
+    print("terminal waiting for ping reply")
+    data = terminal_socket.recv(2048)
+    print("terminal recvd msg")
+    jsonObj = json.loads(data)
+
+    print(jsonObj)
+
+
+# Create DB
+# bind socket
+def create_db():
+
+    # create AF_UNIX socket
+    s1, s2 = socket.socketpair()
+    s1.setblocking(0)
+    s2.setblocking(0)
+    global db
+    
+    
+    # add socket to TCP server
+    db = s2
+    inputs.append(db)
+    message_queues[db] = Queue.Queue()
+
+    # keep socket to communicate
+    global db_api
+    db_socket = s1
+
+    db_api = DB.db(db_socket)
+
+    
+
+def start_db():
+    db_api.start()
+
+    
 
 # Create worker threads
 def create_workers():
@@ -332,11 +537,15 @@ def work():
     while True:
         x = queue.get()
         if x == 1: # handle connection
+            getHost()
             create_socket()
             bind_socket()
             accepting_connection()
         if x == 2: # send commands - start shell
             start_turtle()
+        if x == 3: # start DB
+            create_db()
+            start_db()
 
         queue.task_done()
 
