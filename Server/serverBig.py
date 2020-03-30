@@ -480,7 +480,7 @@ def send_target_command(conn):
 #    toSendObj = {
 #        "message":"ping",
 #        "type":"request",
-#        "target":conn.getpeername()
+#        "target":conn.getpe`ername()
 #    }
 #    toSendJson = json.dumps(toSendObj)
 #    terminal_socket.sendall(bytes(toSendJson,"utf-8"))

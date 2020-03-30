@@ -51,7 +51,7 @@ def main():
 
     recvList = [clientSocket, sys.stdin]
 
-    print(f"* You are now connected to chat server {clientSocket.getpeername()} as {clientSocket.getsockname()} *") 
+    print(f"* Connected to server {clientSocket.getpeername()} as {clientSocket.getsockname()} *") 
 
     print("client>",end="", flush=True)
     try:
