@@ -257,14 +257,24 @@ def send_target_command(conn):
 ####    DB  ####
 
 def handleMessage(clientSocket , message):
-        msg_len = int(message[:MESSAGESIZE])
-        #print(f'message length {msg_len}')
         jsonObj = decode(message[MESSAGESIZE:])
-        print(f"DB says> got {jsonObj['type']} from {clientSocket.getpeername()}")
-        print(jsonObj)
+        try:
+            msgType = jsonObj['type']
+        except KeyError as err:
+            print(f"KeyError: {err.args[0]}")
+            response = encode(createMessage("keyError","response",err.args[0]))
+            
+            clientSocket.sendall(response)
+            return
 
 
-        response = messageTypes["request"]["ping"](clientSocket)
+        msgMessage = jsonObj['message']
+
+        print(f"{clientSocket.getpeername()}>{msgType}: {msgMessage}")
+        #print(jsonObj)
+
+        #response = messageTypes["request"]["ping"](clientSocket)
+        response = messageTypes[msgType][msgMessage](clientSocket)
 
 
         #server.sendall(response)

@@ -61,15 +61,14 @@ def main():
             for fd in readyRecvList:
                 if fd == sys.stdin:
                     message = sys.stdin.readline().rstrip()
-                    #dic = {
-                    #    "message":message,
-                    #    "type":"request"
-                    #}
+
+                    if (message == ''):
+                        print("client>",end="", flush=True)
+                        continue
+
+                    
                     msg = createMessage(message, "request","")
-                    #toSend = json.dumps(dic)
-                    #print(toSend)
                     enc = encode(msg)
-                    #rep = f'{len(toSend):<10}' + toSend
                     clientSocket.sendall(enc)
 
                     if (message == "quit()"):
@@ -95,34 +94,14 @@ def main():
                                 exit(1)
                             break
                         else:
-                            print (f"{message}\n")
-                            #msg_len = int(message[:HEADERSIZE])
-                            #print(f'message length {msg_len}')
-                            #print(message[HEADERSIZE:])
-                            #jsonObj = json.loads(message[HEADERSIZE:])
-                            #print(jsonObj)
-                            #msgLength = int(message[:MESSAGESIZE])
-                            #jsonObj = decode(message[MESSAGESIZE:])
-#
-#
-#
-                            #if jsonObj['type']=="request":
-                            #    if jsonObj['message']=="ping":
-                            #        print("Pong!")
-                            #        dic = {
-                            #            "message":"pong",
-                            #            "type":"response"
-                            #        }
-                            #        toSend = json.dumps(dic)
-                            #        print(toSend)
-                            #        clientSocket.sendall(bytes(toSend, "utf-8"))
+                            #print (f"{message}\n")
 
                             handleMessage(message)
 
 
                     clientSocket.settimeout(None)
                     break
-            print("client>",end="", flush=True)
+            #print("client>",end="", flush=True)
 
     except select.error as err:
         for fd in recvList:
@@ -154,10 +133,11 @@ def main():
 
 
 def handleMessage(message):
-    msg_len = int(message[:MESSAGESIZE])
-    print(f'message length {msg_len}')
+    #msg_len = int(message[:MESSAGESIZE])
+    #print(f'message length {msg_len}')
     jsonObj = decode(message[MESSAGESIZE:])
-    print(f"Server {jsonObj['type']}:{jsonObj['message']}")
+    print()
+    print(f"Server> {jsonObj['type']}: {jsonObj['message']}")
     
     msgType = jsonObj['type']
     msgMessage = jsonObj['message']
@@ -177,9 +157,13 @@ def pong():
 def welcome():
     print("welcome!")
 
+def keyError():
+    print("keyError!")
+
 responses = {
     "pong":pong,
-    "welcome to the server":welcome
+    "welcome to the server":welcome,
+    "keyError":keyError
 }
 
 messageTypes = {
