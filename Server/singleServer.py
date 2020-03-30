@@ -18,6 +18,8 @@ message_queues = {}
 
 terminals = []
 
+clients = {}
+
 ####    init TCP socket ####
 def create_socket():
     try:
@@ -41,7 +43,7 @@ def bind_socket():
         
         print("Binding the port:" + str(port))
 
-        print("Host IP :" + host)
+        #print("Host IP :" + host)
         server.bind((host,port))
         server.listen(5)
         inputs.append(server)
@@ -72,13 +74,13 @@ def accepting_connection():
                 connection.send(obj)
 
                 # add to clients dictionary
-                #clients[str(list(connection.getpeername()))]=connection
+                clients[str(list(connection.getpeername()))]=connection
 
             elif s in terminals:
                 print("Terminal read")
                 data = s.recv(1024)
                 if data:
-                    pass
+                    handleTerminal(data)
             
             else:
                 data = s.recv(1024)
@@ -93,7 +95,7 @@ def accepting_connection():
                     if s in outputs:
                         outputs.remove(s)
                     inputs.remove(s)
-                    #del clients[str(list(s.getpeername()))]
+                    del clients[str(list(s.getpeername()))]
                     s.close()
                     del message_queues[s]
 
@@ -116,7 +118,7 @@ def accepting_connection():
                 outputs.remove(s)
             s.close()
             del message_queues[s]
-            #del clients[str(list(s.getpeername()))]
+            del clients[str(list(s.getpeername()))]
 ####    /select event loop    ####
 
 
@@ -165,7 +167,7 @@ def list_connections():
     print("connection size: " + str(len(inputs)))
     for i, conn in enumerate(inputs):
         try:
-            if (conn is server) or (conn is terminal):
+            if (conn is server) or (conn in terminals):
                 continue
             print("pinging " + str(i))
 
@@ -173,24 +175,40 @@ def list_connections():
             #conn.recv(201480)
 
             #send_message(conn, "ping")
-            msg = createMessage("ping","request",conn.getpeername())
+            t = time.time()
+            msg = createMessage("ping","request",str(list(conn.getpeername())))
             b_msg = encode(msg)
-            terminal_socket.sendall(b_msg)
-            wait_for_message()
 
-        except:
+            terminal_socket.sendall(b_msg)
+            #terminal_socket.sendall(bytes(f"ping {conn.getpeername()}","utf-8"))
+            wait_for_message()
+            elapsed = time.time() - t
+            ping = round(elapsed,4)
+            #print(f"elapsed: {ping}")
+
+        except Exception as err:
             print("ping failed to user")
+            print(err)
             del inputs[i]
             if conn in outputs:
                 outputs.remove(conn)
             #del all_addresses[i]
             continue
         
-        results = str(i) + "     " + str(inputs[i].getpeername()[0]) + "     " + str(inputs[i].getpeername()[1]) + "\n"
+        results += str(i) + "     " + str(inputs[i].getpeername()[0]) + "     " + str(inputs[i].getpeername()[1]) + "    " + str(ping) + "ms" + "\n"
 
     print("---- Clients ----")
     print("-ID-------IP--------PORT--------PING----")
     print(results)
+
+def wait_for_message():
+    print("terminal waiting for ping reply")
+    data = terminal_socket.recv(2048)
+    print("terminal recvd msg")
+    print(data)
+    #jsonObj = json.loads(data)
+
+    #print(jsonObj)
 
 
     # Selecting the target
@@ -274,11 +292,17 @@ def handleMessage(clientSocket , message):
         #print(jsonObj)
 
         #response = messageTypes["request"]["ping"](clientSocket)
-        response = messageTypes[msgType][msgMessage](clientSocket)
-
+        try:
+            messageTypes[msgType][msgMessage](clientSocket)
+        except KeyError as err:
+            print(f"KeyError: {err.args[0]}")
+            response = encode(createMessage("keyError","response",err.args[0]))
+            
+            clientSocket.sendall(response)
+            return
 
         #server.sendall(response)
-        clientSocket.sendall(response)
+        #clientSocket.sendall(response)
 
 
 
@@ -286,7 +310,7 @@ def handleMessage(clientSocket , message):
 def ping(clientSocket):
     msg = createMessage("pong","response","")
     b_msg = encode(msg)
-    return b_msg
+    clientSocket.sendall(b_msg)
 
 requests = {
     "ping":ping
@@ -294,7 +318,11 @@ requests = {
 
 ### responses ###
 def pong(clientSocket):
-    pass
+    print("ponging b to terminal")
+    msg = createMessage("pong","response",str(list(clientSocket.getpeername())))
+    b_msg = encode(msg)
+    terminals[0].sendall(b_msg) 
+
 responses = {
     "pong":pong
 }
@@ -309,6 +337,38 @@ messageTypes = {
 
 
 
+
+####    terminal handler    ####
+def handleTerminal(data):
+    print(f"handling {data}")
+    o = decode(data[MESSAGESIZE:])
+    oType = o['type']
+    oMessage = o['message']
+    oArgs = o['args']
+
+    if oMessage == "ping":
+        print(f"should ping {oArgs}")
+        #print(clients[oArgs])
+        try:
+            #print(clients[oArgs])
+            conn = clients[oArgs]
+        except KeyError as err:
+            print(f"KeyError: {err}")
+        else:
+            print("am i sending ping?")
+            msg = createMessage("ping","request","")
+            b_msg = encode(msg)
+            message_queues[conn].put(b_msg)
+            if conn not in outputs:
+                outputs.append(conn)
+    
+    
+    elif oMessage == "pong":
+        print("done pinging to ...?")
+        
+
+
+####    /terminal handler   ####
 
 
 

@@ -27,6 +27,7 @@ def main():
     """
     main - Runs the Full Duplex Chat Client
     """
+    global clientSocket
 
     serverHost = 'localhost'
     serverPort = 10006
@@ -88,7 +89,7 @@ def main():
                         print("ERROR: Something awful happened!")
                     else:
                         if message == "" or message == b'':
-                            print("none msg")
+                            print("server closed the connection")
                             for fd in recvList:
                                 fd.close()
                                 exit(1)
@@ -145,7 +146,9 @@ def handleMessage(message):
     response = messageTypes[msgType][msgMessage]
     response()
 def ping():
-    pass
+    msg = createMessage("pong","response","")
+    enc = encode(msg)
+    clientSocket.sendall(enc)
 
 requests = {
     "ping":ping
