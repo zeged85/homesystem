@@ -7,6 +7,7 @@ import time
 import queue as Queue
 import select
 from msgFrame import *
+import shell
 
 NUMBERS_OF_THREADS = 2
 JOB_NUMBER = [1, 2]
@@ -16,7 +17,9 @@ inputs = []
 outputs = []
 message_queues = {}
 
-terminals = []
+global terminal_socket
+
+
 
 clients = {}
 
@@ -76,11 +79,12 @@ def accepting_connection():
                 # add to clients dictionary
                 clients[str(list(connection.getpeername()))]=connection
 
-            elif s in terminals:
-                print("Terminal read")
+            elif s is terminal_socket:
+                #print("Terminal read")
                 data = s.recv(1024)
                 if data:
                     handleTerminal(data)
+                    #print(data)
             
             else:
                 data = s.recv(1024)
@@ -101,7 +105,7 @@ def accepting_connection():
 
         for s in writable:
 
-            if s in terminals:
+            if s is terminal_socket:
                 print("Terminal write")
 
             try:
@@ -123,155 +127,6 @@ def accepting_connection():
 
 
 
-
-
-####    shell   ####
-
-def start_shell():
-    s1, s2 = socket.socketpair() # create AF_UNIX socket
-    global terminal_socket
-    terminal_socket = s1 # keep socket to communicate
-    terminal_peer = s2 # add socket to TCP server
-    terminals.append(terminal_peer)
-    inputs.append(terminal_peer)
-
-    while True:
-        cmd = input('server>')
-
-        if cmd == 'list':
-            list_connections()
-
-        elif 'echo' in cmd:
-            echo_message(cmd)
-
-        # TODO: add 'select all' feature   
-        elif 'select' in cmd:
-            conn = get_target(cmd)
-            if conn is not None:
-                send_target_command(conn)
-
-        elif cmd == '':
-            continue
-        else:
-            print("bad command or filename")    
-
-def echo_message(cmd):
-    action = cmd.replace('echo ', '')
-    terminal_socket.sendall(str.encode(action+"\n"))
-
-# Display all current active connection with the clients
-
-def list_connections():
-    results = ''
-    #all_connections = inputs
-    print("connection size: " + str(len(inputs)))
-    for i, conn in enumerate(inputs):
-        try:
-            if (conn is server) or (conn in terminals):
-                continue
-            print("pinging " + str(i))
-
-            #conn.send(str.encode(' '))
-            #conn.recv(201480)
-
-            #send_message(conn, "ping")
-            t = time.time()
-            msg = createMessage("ping","request",str(list(conn.getpeername())))
-            b_msg = encode(msg)
-
-            terminal_socket.sendall(b_msg)
-            #terminal_socket.sendall(bytes(f"ping {conn.getpeername()}","utf-8"))
-            wait_for_message()
-            elapsed = time.time() - t
-            ping = round(elapsed,4)
-            #print(f"elapsed: {ping}")
-
-        except Exception as err:
-            print("ping failed to user")
-            print(err)
-            del inputs[i]
-            if conn in outputs:
-                outputs.remove(conn)
-            #del all_addresses[i]
-            continue
-        
-        results += str(i) + "     " + str(inputs[i].getpeername()[0]) + "     " + str(inputs[i].getpeername()[1]) + "    " + str(ping) + "ms" + "\n"
-
-    print("---- Clients ----")
-    print("-ID-------IP--------PORT--------PING----")
-    print(results)
-
-def wait_for_message():
-    print("terminal waiting for ping reply")
-    data = terminal_socket.recv(2048)
-    print("terminal recvd msg")
-    print(data)
-    #jsonObj = json.loads(data)
-
-    #print(jsonObj)
-
-
-    # Selecting the target
-def get_target(cmd):
-    try:
-        target = cmd.replace('select ', '') # target = id
-        target = int(target) # cast to int
-        conn = inputs[target]
-        print("you are now connected to " + str(inputs[target].getpeername()[0]))
-        print(str(inputs[target].getpeername()[0]) +":"+ str(inputs[target].getpeername()[1]) + ">", end="") # format prompt
-
-        return conn
-
-        # 192.168.0.4>
-
-    except:
-        print("Selection not valid")
-        return None
-
-
-# Sends commands to client 
-def send_target_command(conn):
-    while True:
-        try:
-            cmd = input()
-            if cmd == 'quit':
-                #conn.close()
-                #s.close()
-                #sys.exit()
-                break
-            if len(str.encode(cmd)) > 0:
-                #print(cmd)
-                #hello_msg = "what's up??\n"
-                #conn.sendall(hello_msg.encode())
-                
-
-                msg = cmd+"\n"
-                #send_message(conn, msg)
-                #conn.sendall(msg)
-
-
-
-                #str.encode(cmd+"\n")
-                message_queues[conn].put(str.encode("test\n"))
-                if conn not in outputs:
-                    outputs.append(conn)
-                
-
-
-
-                #client_response = str(conn.recv(20480),"utf-8")
-                #print(client_response, end="")
-        except:
-            print("Bad command or file name")
-            break
-
-####    /shell   ####
-
-
-
-
-
-
 ####    DB  ####
 
 def handleMessage(clientSocket , message):
@@ -287,6 +142,8 @@ def handleMessage(clientSocket , message):
 
 
         msgMessage = jsonObj['message']
+
+        msgArgs = jsonObj['args']
 
         print(f"{clientSocket.getpeername()}>{msgType}: {msgMessage}")
         #print(jsonObj)
@@ -306,11 +163,31 @@ def handleMessage(clientSocket , message):
 
 
 
+
+
+def pingClient(idx):
+
+    print("pinging " + idx)
+    #t = time.time()
+#
+    #msg = createMessage("ping","request",str(list(conn.getpeername())))
+    #b_msg = encode(msg)
+    #terminal_socket.sendall(b_msg)
+    #wait_for_message()
+    #elapsed = time.time() - t
+    #ping = round(elapsed,4)
+
+
+
 ### reqs ###
 def ping(clientSocket):
+    #if 
     msg = createMessage("pong","response","")
     b_msg = encode(msg)
-    clientSocket.sendall(b_msg)
+    #clientSocket.sendall(b_msg)
+    message_queues[clientSocket].put(b_msg)
+    if clientSocket not in outputs:
+        outputs.append(clientSocket)
 
 requests = {
     "ping":ping
@@ -321,7 +198,7 @@ def pong(clientSocket):
     print("ponging b to terminal")
     msg = createMessage("pong","response",str(list(clientSocket.getpeername())))
     b_msg = encode(msg)
-    terminals[0].sendall(b_msg) 
+    terminal_socket.sendall(b_msg) 
 
 responses = {
     "pong":pong
@@ -335,36 +212,69 @@ messageTypes = {
 
 ####    /DB ####
 
+ # Display all current active connection with the clients
 
+def list_connections(self):
+    results = ''
+    #all_connections = inputs
+    print("connection size: " + str(len(inputs)))
+    for i, conn in enumerate(inputs):
+        try:
+            if (conn is server) or (conn is terminal_socket):
+                continue
+            print("pinging " + str(i))
+            t = time.time()
+            msg = createMessage("ping","request",str(list(conn.getpeername())))
+            b_msg = encode(msg)
+            terminal_socket.sendall(b_msg)
+            wait_for_message()
+            elapsed = time.time() - t
+            ping = round(elapsed,4)
+            #print(f"elapsed: {ping}")
+        except Exception as err:
+            print("ping failed to user")
+            print(err)
+            del inputs[i]
+            if conn in outputs:
+                outputs.remove(conn)
+            #del all_addresses[i]
+            continue
+        
+        results += f" {str(i-1)}     {str(inputs[i].getpeername()[0])}     {str(inputs[i].getpeername()[1])}    {str(ping)}ms  \n"
+    print("---- Clients ----")
+    print("-ID-------IP--------PORT--------PING----UP-TIME----")
+    print(results)
 
 
 ####    terminal handler    ####
 def handleTerminal(data):
-    print(f"handling {data}")
-    o = decode(data[MESSAGESIZE:])
-    oType = o['type']
-    oMessage = o['message']
-    oArgs = o['args']
+    cmd = str(data,"utf-8")
+    print(f"handling {cmd}")
+    
 
-    if oMessage == "ping":
-        print(f"should ping {oArgs}")
+
+    if "ping" in cmd:
+        idx = cmd[5:]
+        print(f"should ping {idx}")
+        pingClient(idx)
+
         #print(clients[oArgs])
-        try:
-            #print(clients[oArgs])
-            conn = clients[oArgs]
-        except KeyError as err:
-            print(f"KeyError: {err}")
-        else:
-            print("am i sending ping?")
-            msg = createMessage("ping","request","")
-            b_msg = encode(msg)
-            message_queues[conn].put(b_msg)
-            if conn not in outputs:
-                outputs.append(conn)
+        #try:
+        #    #print(clients[oArgs])
+        #    conn = clients[oArgs]
+        #except KeyError as err:
+        #    print(f"KeyError: {err}")
+        #else:
+        #    print("am i sending ping?")
+        #    msg = createMessage("ping","request","")
+        #    b_msg = encode(msg)
+        #    message_queues[conn].put(b_msg)
+        #    if conn not in outputs:
+        #        outputs.append(conn)
     
     
-    elif oMessage == "pong":
-        print("done pinging to ...?")
+    else:
+        print("Bad command or file name")
         
 
 
@@ -372,9 +282,26 @@ def handleTerminal(data):
 
 
 
+####    shell   ####
+
+
+def create_shell():
+
+
+   s1, s2 = socket.socketpair() # create AF_UNIX socket
+   global terminal_socket
+   terminal_socket = s1 # keep socket to communicate
+   terminal_peer = s2 # add socket to TCP server
+   ##terminals.append(terminal_socket)
+   inputs.append(terminal_socket)
+
+
+   myShell = shell.shell(terminal_peer)
+   myShell.start_shell()
 
 
 
+####    /shell   ####
 
 ####    init    ####
 
@@ -389,12 +316,12 @@ def create_workers():
 def work():
     while True:
         x = queue.get()
-        if x == 1: # handle connection
+        if x == 2: # handle connection
             create_socket()
             bind_socket()
             accepting_connection()
-        if x == 2: # send commands - start shell
-            start_shell()
+        if x == 1: # send commands - start shell
+            create_shell() # shell first - needs terminal in inputs before
 
         queue.task_done()
 
