@@ -16,7 +16,7 @@ class EchoServerProtocol(asyncio.Protocol):
         clients[transport]=Client(transport)
 
     def data_received(self, data):
-        asyncio.ensure_future(handleDataReceived(self, data)  )
+        asyncio.create_task(handleDataReceived(self, data)  )
         #await handleDataReceived(self,data)
         #peername = self.transport.get_extra_info('peername')
         #message = data.decode()
