@@ -1,5 +1,6 @@
 import asyncio
 from aioconsole import ainput
+import MessageHandler
 
 clients = {}
 
@@ -16,10 +17,10 @@ class EchoServerProtocol(asyncio.Protocol):
         clients[transport]=Client(transport)
 
     def data_received(self, data):
-        asyncio.create_task(handleDataReceived(self, data)  )
+        asyncio.create_task(MessageHandler.handleDataReceived(self, loop, data)  )
         #await handleDataReceived(self,data)
         #peername = self.transport.get_extra_info('peername')
-        #message = data.decode()
+        #  
         ##print('Data received: {!r}'.format(message))
         #print(f"{peername}: {data}")
         ##print(self.)
@@ -37,9 +38,7 @@ class EchoServerProtocol(asyncio.Protocol):
         #self.on_con_lost.set_result(True)
 
 
-async def handleDataReceived(self,data):
-    await asyncio.sleep(1)
-    print("in data recevied")
+
 
 async def send_message():
     while True:
@@ -56,7 +55,7 @@ async def send_message():
                 peername = transport.get_extra_info('peername')
                 #ping =
                 print()
-                transport.write(b'ping')
+                transport.write(b'ping\n')
                 
             
         elif 'echo' in messageToSend:
@@ -67,6 +66,7 @@ async def send_message():
 async def main():
     # Get a reference to the event loop as we plan to use
     # low-level APIs.
+    global loop
     loop = asyncio.get_running_loop()
 
     #srvClass = EchoServerProtocol()
@@ -74,7 +74,7 @@ async def main():
     global server
     server = await loop.create_server(
         lambda: EchoServerProtocol(),
-        'localhost', 8888)
+        '10.0.0.41', 8888)
 
     #async with server:
     #    await server.serve_forever()
