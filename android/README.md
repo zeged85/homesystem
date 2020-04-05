@@ -49,3 +49,23 @@ change tutorial 3
 data->pipeline =
       gst_parse_launch ("udpsrc port=5000 caps=\"application/x-rtp, media=video, clock-rate=90000, encoding-name=H264, sprop-parameter-sets=\\\"J2QAKKwrQCgC3YCA8SJq\\\\,KO4BNyw\\\\=\\\", payload=96\" ! queue ! rtph264depay  ! queue ! decodebin ! videoconvert ! autovideosink", &error);
 ```
+
+# android studio wireless debugging
+https://futurestud.io/tutorials/how-to-debug-your-android-app-over-wifi-without-root
+
+You need to connect your device to your computer via USB cable. Make sure USB debugging is working.
+You can check if it shows up when running adb devices
+```bash
+adb devices
+```
+
+run
+```bash
+adb tcpip 5555
+```
+
+run
+```bash
+adb connect <IP address of your device>:5555
+
+```
