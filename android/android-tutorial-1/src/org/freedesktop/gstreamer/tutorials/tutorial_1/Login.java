@@ -1,5 +1,6 @@
 package org.freedesktop.gstreamer.tutorials.tutorial_1;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,6 +37,10 @@ public class Login extends AppCompatActivity {
 
     private Socket socket;
 
+    private String fileServerIP;
+    private Integer fileServerPort;
+    private Long fileSize;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,6 +50,8 @@ public class Login extends AppCompatActivity {
         setButton1();
         setButton2();
         setButton3();
+        setButtonDownload();
+        setButtonDownloadReq();
 /*
         if (savedInstanceState != null) {
             gstArray.is_playing_desired = savedInstanceState.getBoolean("playing");
@@ -71,6 +78,28 @@ public class Login extends AppCompatActivity {
 //        outState.putBoolean("playing2", gstArray2.is_playing_desired);
     }
 
+    public void setButtonDownloadReq(){
+        findViewById(R.id.reqDownload_btn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.out.println("sending download to server");
+                new Thread(new Thread3("download")).start();
+            }
+        });
+    }
+
+public void setButtonDownload(){
+    findViewById(R.id.download_btn).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            System.out.println("opening port to download from server");
+            //new Thread(new Thread3("download")).start();
+
+            new fileDownloader(Login.this,"10.0.0.41",fileServerPort,  10278634L).start();
+        }
+    });
+}
+
 public void setButton3(){
     findViewById(R.id.ping_btn).setOnClickListener(new View.OnClickListener() {
         @Override
@@ -92,7 +121,8 @@ public void setButton3(){
                 e.printStackTrace();
             }
 
-            new Thread(new Thread3(postData.toString())).start();
+           // new Thread(new Thread3(postData.toString())).start();
+            new Thread(new Thread3("pong")).start();
 
         }
     });
@@ -129,7 +159,15 @@ public void setButton2(){
                 EditText port_et = (EditText)findViewById(R.id.port_txt);
                 PORT = Integer.parseInt(port_et.getText() .toString());
 
+                // restore last
+                SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
 
+//                if (sharedPreferences.contains("name")){
+//                    EditText name_et = (EditText)findViewById(R.id.username_txt);
+//                    String tmp = "";
+//                    sharedPreferences.getString("name", tmp);
+//                    name_et.setText(tmp);
+//                }
 
 //                String login_msg = "trying to login to " + IP + ":" + PORT;
 //                Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
@@ -211,6 +249,12 @@ public void setButton2(){
                                 String login_msg = message;
                                 Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
 
+                                if (message.contains("port")){
+                                    fileServerIP = "10.0.0.41";
+                                    fileServerPort = Integer.parseInt(message.split(" ")[1]);
+                                    fileSize = Long.parseLong(message.split(" ")[3]);
+
+                                }
 
                                 try {
                                     JSONObject data = new JSONObject(message);
@@ -273,10 +317,11 @@ public void setButton2(){
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+//                    MESSAGE SENT - UPDATE GUI
 //                    tvMessages.append("client: " + message + "\n");
 //                    etMessage.setText("");
-                    //String login_msg = message;
-                    //Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
+//                    String login_msg = message;
+//                    Toast.makeText(Login.this,login_msg , Toast.LENGTH_LONG).show();
                 }
             });
             System.out.println("Thread3 finished");
