@@ -1,2 +1,2 @@
 #!/bin/bash
-gst-launch-1.0 gdiscreencapsrc x=100 y=100 width=320 height=240 cursor=TRUE ! videoconvert ! dshowvideosink
+gst-launch-1.0 ximagesrc startx=1280 use-damage=0 ! video/x-raw,framerate=30/1 ! videoscale method=0 ! video/x-raw,width=1280,height=1024  ! ximagesink
