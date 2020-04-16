@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 
 import sys, os
@@ -9,7 +10,7 @@ from gi.repository import Gst, GObject, Gtk
 from gi.repository import GdkX11, GstVideo
 
 class GTK_Main(object):
-
+      
     def __init__(self):
         window = Gtk.Window(Gtk.WindowType.TOPLEVEL)
         window.set_title("Video-Player")
@@ -27,14 +28,14 @@ class GTK_Main(object):
         self.movie_window = Gtk.DrawingArea()
         vbox.add(self.movie_window)
         window.show_all()
-
+        
         self.player = Gst.ElementFactory.make("playbin", "player")
         bus = self.player.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
         bus.connect("message", self.on_message)
         bus.connect("sync-message::element", self.on_sync_message)
-
+        
     def start_stop(self, w):
         if self.button.get_label() == "Start":
             filepath = self.entry.get_text().strip()
@@ -46,7 +47,7 @@ class GTK_Main(object):
             else:
                 self.player.set_state(Gst.State.NULL)
                 self.button.set_label("Start")
-
+                
     def on_message(self, bus, message):
         t = message.type
         if t == Gst.MessageType.EOS:
@@ -55,9 +56,9 @@ class GTK_Main(object):
         elif t == Gst.MessageType.ERROR:
             self.player.set_state(Gst.State.NULL)
             err, debug = message.parse_error()
-            print ("Error: %s" % err, debug)
+            print "Error: %s" % err, debug
             self.button.set_label("Start")
-
+            
     def on_sync_message(self, bus, message):
         if message.get_structure().get_name() == 'prepare-window-handle':
             imagesink = message.src
