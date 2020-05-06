@@ -40,6 +40,11 @@ sudo pip3 install pytube3
 sudo apt install git
 ```
 
+## DVB
+```bash
+gst-launch-1.0 dvbbasebin modulation="QAM 64" trans-mode=8k bandwidth=8 frequency=538000000 code-rate-lp=AUTO code-rate-hp=2/3 guard=4  hierarchy=0 program-numbers=3  ! queue ! decodebin name=dmux dmux. ! queue ! audioconvert ! autoaudiosink dmux. ! queue ! autovideoconvert ! autovideosink
+
+```
 
 
 
