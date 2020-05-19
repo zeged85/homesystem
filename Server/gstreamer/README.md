@@ -28,6 +28,23 @@ sudo apt-get install libgstreamer1.0-dev
 ```
 
 
+## add `pkg-config --cflags --libs gstreamer-1.0` to tasks.json
+## (F1: "Tasks: Configure Task Runner")
+```json
+"args": [
+	"-g",
+	"${file}",
+	"-o",
+	"${fileDirname}/${fileBasenameNoExtension}",
+	"`",
+	"pkg-config",
+	"--cflags",
+	"--libs",
+	"gstreamer-1.0",
+	"`"
+    ]
+```
+
 
 ## install gstreamer for linux (optional?): 
 ```bash
