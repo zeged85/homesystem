@@ -27,6 +27,12 @@ sudo apt-get install libgstreamer1.0-dev
     ]
 ```
 
+## locate
+## https://stackoverflow.com/questions/45401164/glib-h-no-such-file-or-directory
+
+sudo apt install locate
+updatedb
+locate glib.h
 
 ## add `pkg-config --cflags --libs gstreamer-1.0` to tasks.json
 ## (F1: "Tasks: Configure Task Runner")
