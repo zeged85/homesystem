@@ -73,4 +73,42 @@ gst-launch-1.0 dvbbasebin modulation="QAM 64" trans-mode=8k bandwidth=8 frequenc
 
 
 
+# update 1
+## opencv on 16.04
+```bash
+list=$(apt-cache --names-only search ^gstreamer1.0-* | awk '{ print $1 }' | grep -v gstreamer1.0-hybris)
+sudo apt-get install $list
+
+
+sudo apt install ubuntu-restricted-extras
+
+sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
+
+
+sudo apt install python3-pip
+pip3 install numpy
+
+
+
+sudo apt install aptitude
+sudo aptitude search libgtk2.0-dev
+sudo aptitude install libgtk2.0-dev
+
+
+sudo apt install git
+
+git clone https://github.com/opencv/opencv.git
+cd opencv/
+mkdir build
+cd build
+
+sudo apt install cmake
+cmake -D CMAKE_BUILD_TYPE=RELEASE -D INSTALL_PYTHON_EXAMPLES=ON -D INSTALL_C_EXAMPLES=OFF -D PYTHON_EXECUTABLE=$(which python3) -D BUILD_opencv_python2=OFF -D CMAKE_INSTALL_PREFIX=$(python3 -c "import sys; print(sys.prefix)") -D PYTHON3_EXECUTABLE=$(which python3) -D PYTHON3_INCLUDE_DIR=$(python3 -c "from distutils.sysconfig import get_python_inc; print(get_python_inc())") -D PYTHON3_PACKAGES_PATH=$(python3 -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())") -D WITH_GSTREAMER=ON -D BUILD_EXAMPLES=ON ..
+
+
+sudo make -j4
+sudo make install
+sudo ldconfig
+
+```
 
