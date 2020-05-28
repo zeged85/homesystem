@@ -49,6 +49,7 @@ https://www.pyimagesearch.com/2020/02/03/how-to-use-opencvs-dnn-module-with-nvid
 
 # v.3
 
+```bash
 sudo apt -y install build-essential
 sudo apt -y install gcc-8 g++-8 gcc-9 g++-9
 sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 8 --slave /usr/bin/g++ g++ /usr/bin/g++-8
@@ -88,6 +89,7 @@ sudo reboot now
 nvidia-smi
 
 nano ~/.bashrc 
+```
 
 ```bash
 # NVIDIA CUDA Toolkit
@@ -104,6 +106,7 @@ export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
 export VIRTUALENVWRAPPER_VIRTUALENV=$HOME/.local/bin/virtualenv
 ```
 
+```bash
 source ~/.bashrc 
 nvcc
 nvcc -V
@@ -192,7 +195,7 @@ sudo make -j8
 sudo make install
 sudo ldconfig
 
-
+```bash
 
 
 
