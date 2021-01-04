@@ -42,4 +42,13 @@ gst-launch-1.0 -v v4l2src  ! video/x-raw, width=1280, height=720, framerate=20/1
 gst-launch-1.0 -v udpsrc port=5000 caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! rtph264depay ! decodebin ! videoconvert ! autovideosink
 ```
 
-### ios
+### iOS
+
+### OSX recieve - udpsec + uri
+```
+./gst-launch-1.0 -v udpsrc uri=udp://10.0.0.12:5000 caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! rtph264depay ! decodebin ! videoconvert ! autovideosink
+```
+### send
+```
+./gst-launch-1.0 videotestsrc ! decodebin ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=10.0.0.12 port=5000
+```
