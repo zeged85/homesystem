@@ -52,3 +52,8 @@ gst-launch-1.0 -v udpsrc port=5000 caps = "application/x-rtp, media=(string)vide
 ```
 ./gst-launch-1.0 videotestsrc ! decodebin ! videoconvert ! x264enc tune=zerolatency ! rtph264pay ! udpsink host=10.0.0.12 port=5000
 ```
+
+### relay
+```
+./gst-launch-1.0 -v udpsrc uri=udp://10.0.0.12:5000 caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! queue ! udpsink host=10.0.0.85 port=5000
+```
