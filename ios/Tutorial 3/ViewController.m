@@ -4,6 +4,7 @@
 
 @interface ViewController () {
     GStreamerBackend *gst_backend;
+    GStreamerBackend *gst_backend2;
     int media_width;
     int media_height;
 }
@@ -28,6 +29,7 @@
     media_height = 240;
 
     gst_backend = [[GStreamerBackend alloc] init:self videoView:video_view];
+    gst_backend2 = [[GStreamerBackend alloc] init:self videoView:video_view2];
 }
 
 - (void)didReceiveMemoryWarning
@@ -40,6 +42,7 @@
 -(IBAction) play:(id)sender
 {
     [gst_backend play];
+    [gst_backend2 play];
 }
 
 /* Called when the Pause button is pressed */

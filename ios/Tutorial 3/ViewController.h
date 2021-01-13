@@ -9,6 +9,7 @@
     IBOutlet UIView *video_container_view;
     IBOutlet NSLayoutConstraint *video_width_constraint;
     IBOutlet NSLayoutConstraint *video_height_constraint;
+    IBOutlet UIView *video_view2;
 }
 
 -(IBAction) play:(id)sender;

@@ -150,7 +150,9 @@ static void state_changed_cb (GstBus *bus, GstMessage *msg, GStreamerBackend *se
     //pipeline = gst_parse_launch("udpsrc port=5000 caps = \"application/x-rtp\" ! rtph264depay ! decodebin ! videoconvert ! autovideosink", &error);
     
     //working 264
-    pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! queue! rtph264depay ! queue ! h264parse ! queue ! vtdec ! queue ! glimagesink", &error);
+    /*pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! queue! rtph264depay ! queue ! h264parse ! queue ! vtdec ! queue ! glimagesink", &error);*/
+    
+    pipeline = gst_parse_launch("videotestsrc ! glimagesink", &error);
     
     if (error) {
         gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
