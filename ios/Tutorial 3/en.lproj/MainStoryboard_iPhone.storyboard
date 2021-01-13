@@ -42,6 +42,7 @@
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="YVj-fp-BtA" secondAttribute="centerY" id="5B7-CE-mxw"/>
+                                    <constraint firstItem="p40-4V-owv" firstAttribute="trailing" secondItem="YVj-fp-BtA" secondAttribute="trailing" id="hwL-SJ-IEk"/>
                                     <constraint firstAttribute="centerX" secondItem="YVj-fp-BtA" secondAttribute="centerX" id="mCK-0x-q1w"/>
                                 </constraints>
                             </view>
