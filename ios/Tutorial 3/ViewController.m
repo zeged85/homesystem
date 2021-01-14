@@ -27,9 +27,12 @@
     /* Make these constant for now, later tutorials will change them */
     media_width = 320;
     media_height = 240;
+    
+    NSString* text1 = @"videotestsrc pattern = 1 ! glimagesink";
+    NSString* text2 = @"videotestsrc pattern = 0 ! glimagesink";
 
-    gst_backend = [[GStreamerBackend alloc] init:self videoView:video_view];
-    gst_backend2 = [[GStreamerBackend alloc] init:self videoView:video_view2];
+    gst_backend = [[GStreamerBackend alloc] init:self videoView:video_view uri:text1];
+    gst_backend2 = [[GStreamerBackend alloc] init:self videoView:video_view2 uri:text2];
 }
 
 - (void)didReceiveMemoryWarning
@@ -78,6 +81,8 @@
         play_button.enabled = TRUE;
         pause_button.enabled = TRUE;
         message_label.text = @"Ready";
+        //[gst_backend setUri:uri];
+        //[gst_backend setUri:@"132"];
     });
 }
 

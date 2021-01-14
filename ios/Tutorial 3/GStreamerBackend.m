@@ -20,18 +20,21 @@ GST_DEBUG_CATEGORY_STATIC (debug_category);
     GMainLoop *main_loop;  /* GLib main loop */
     gboolean initialized;  /* To avoid informing the UI multiple times about the initialization */
     UIView *ui_video_view; /* UIView that holds the video */
+    gchar * uri;
 }
 
 /*
  * Interface methods
  */
 
--(id) init:(id) uiDelegate videoView:(UIView *)video_view
+-(id) init:(id) uiDelegate videoView:(UIView *)video_view uri:(NSString*)text
 {
     if (self = [super init])
     {
         self->ui_delegate = uiDelegate;
         self->ui_video_view = video_view;
+        const char *char_uri = [text UTF8String];
+        self->uri = g_strdup(char_uri);
 
         GST_DEBUG_CATEGORY_INIT (debug_category, "tutorial-3", 0, "iOS tutorial 3");
         gst_debug_set_threshold_for_name("tutorial-3", GST_LEVEL_DEBUG);
@@ -81,6 +84,16 @@ GST_DEBUG_CATEGORY_STATIC (debug_category);
     {
         [ui_delegate gstreamerSetUIMessage:string];
     }
+}
+
+-(void) setUri:(NSString*)uri
+{
+    const char *char_uri = [uri UTF8String];
+    //uri = [uri UTF8String];
+    //gchar * tst;
+    self->uri = g_strdup(char_uri);
+    //g_object_set(pipeline, "uri", char_uri, NULL);
+    GST_DEBUG ("URI set to %s", char_uri);
 }
 
 /* Retrieve errors from the bus and show them on the UI */
@@ -151,8 +164,15 @@ static void state_changed_cb (GstBus *bus, GstMessage *msg, GStreamerBackend *se
     
     //working 264
     /*pipeline = gst_parse_launch("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! queue! rtph264depay ! queue ! h264parse ! queue ! vtdec ! queue ! glimagesink", &error);*/
+    GST_DEBUG ("before pipeline build %s", self->uri);
+    //pipeline = gst_parse_launch("videotestsrc pattern = 1 ! glimagesink", &error);
+    pipeline = gst_parse_launch(self->uri, &error);
     
-    pipeline = gst_parse_launch("videotestsrc ! glimagesink", &error);
+    //self->uri;
+    //g_object_set(pipeline, "uri", char_uri, NULL);
+    GST_DEBUG ("after pipeline build %s", self->uri);
+    
+    
     
     if (error) {
         gchar *message = g_strdup_printf("Unable to build pipeline: %s", error->message);
