@@ -28,8 +28,14 @@
     media_width = 320;
     media_height = 240;
     
-    NSString* text1 = @"videotestsrc pattern = 1 ! glimagesink";
-    NSString* text2 = @"videotestsrc pattern = 0 ! glimagesink";
+    //NSString* text1 = @"videotestsrc pattern = 1 ! glimagesink";
+    //NSString* text2 = @"videotestsrc pattern = 0 ! glimagesink";
+    //NSString* text1 = @"udpsrc port=5001 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! queue! rtph264depay ! queue ! h264parse ! queue  ! vtdec ! queue ! videoconvert ! videoscale ! queue ! glimagesink";
+    //NSString* text2 = @"udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! queue! rtph264depay ! queue ! h264parse ! queue  ! vtdec ! queue ! videoconvert ! videoscale ! queue ! glimagesink";
+    NSString* text1 = @"udpsrc  port=5000 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! autovideosink";
+    NSString* text2 = @"udpsrc  port=5001 ! application/x-rtp,encoding-name=JPEG,payload=26 ! rtpjpegdepay ! jpegdec ! autovideosink";
+    
+    
 
     gst_backend = [[GStreamerBackend alloc] init:self videoView:video_view uri:text1];
     gst_backend2 = [[GStreamerBackend alloc] init:self videoView:video_view2 uri:text2];

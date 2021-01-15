@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="kYn-Hr-MJq">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
@@ -16,22 +16,22 @@
                         <viewControllerLayoutGuide type="bottom" id="9z2-hp-HzE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="JOS-rK-Hts">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0dR-Db-Wxo" userLabel="VideoContainer">
-                                <rect key="frame" x="0.0" y="0.0" width="414" height="827.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="603.5"/>
                                 <subviews>
-                                    <view contentMode="scaleAspectFit" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YVj-fp-BtA" userLabel="Video" customClass="EaglUIView">
-                                        <rect key="frame" x="47" y="86" width="320" height="240"/>
+                                    <view contentMode="scaleAspectFit" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YVj-fp-BtA" userLabel="Video" customClass="EaglUIView">
+                                        <rect key="frame" x="27" y="8" width="320" height="240"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="320" id="9zy-ya-q8u"/>
                                             <constraint firstAttribute="height" constant="240" id="DNz-za-Lsb"/>
                                         </constraints>
                                     </view>
-                                    <view contentMode="scaleAspectFit" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="p40-4V-owv" userLabel="Video" customClass="EaglUIView">
-                                        <rect key="frame" x="47" y="411" width="320" height="240"/>
+                                    <view contentMode="scaleAspectFit" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="p40-4V-owv" userLabel="Video" customClass="EaglUIView">
+                                        <rect key="frame" x="27" y="256" width="320" height="240"/>
                                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="240" id="1dt-oa-09m"/>
@@ -41,13 +41,13 @@
                                 </subviews>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="YVj-fp-BtA" secondAttribute="centerY" id="5B7-CE-mxw"/>
+                                    <constraint firstItem="p40-4V-owv" firstAttribute="top" secondItem="YVj-fp-BtA" secondAttribute="bottom" id="LvG-5c-Kz2"/>
                                     <constraint firstItem="p40-4V-owv" firstAttribute="trailing" secondItem="YVj-fp-BtA" secondAttribute="trailing" id="hwL-SJ-IEk"/>
                                     <constraint firstAttribute="centerX" secondItem="YVj-fp-BtA" secondAttribute="centerX" id="mCK-0x-q1w"/>
                                 </constraints>
                             </view>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Initializing..." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="8wd-E5-Owx" userLabel="Message">
-                                <rect key="frame" x="20" y="827.5" width="374" height="19.5"/>
+                                <rect key="frame" x="20" y="603.5" width="335" height="19.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="50" id="WIW-Im-XnF"/>
                                 </constraints>
@@ -56,7 +56,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="o22-1p-nvT">
-                                <rect key="frame" x="0.0" y="847" width="414" height="49"/>
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                                 <items>
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="BPU-1t-gy3"/>
                                     <barButtonItem systemItem="play" id="6LZ-7a-xKf">
