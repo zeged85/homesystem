@@ -3,7 +3,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
-from gi.repository import Gtk, Gst
+from gi.repository import Gtk, GObject, Gst
 Gst.init(None)
 Gst.init_check(None)
 
@@ -35,54 +35,72 @@ class GstWidget(Gtk.Box):
 
 class myController:
     def __init__(self,view):
-        self.view = view
+        self._view = view
+        self._view.connect('button1-clicked', self._addVideo)
+        self._view.connect('destroy', self.on_destroy)
 
-    def addVideo(self):
-        self.view.addVideo()
-
-
-
-class myView:
-    def __init__(self):
-        self.window = Gtk.ApplicationWindow()
-        self.vbox = Gtk.VBox()
-        self.window.add(self.vbox)
-        def on_destroy(win):
-            Gtk.main_quit()
-
-        self.window.connect('destroy', on_destroy)
-
-        self.setup()
-        self.update()
-
-    def setup(self):
-        button = Gtk.Button("Start")
-        button.connect("clicked", self.addVideo)
-        self.vbox.add(button)
-
-    def update(self):
-        self.window.show_all()
-
-
-    def addVideo(self,obj):
-        print(obj)
-        print(type(obj))
-        print("add video")
-        #widget = GstWidget('videotestsrc pattern=1')
-
+    def _addVideo(self, button):
         pipeline = Gst.Pipeline()
         factory = pipeline.get_factory()
         gtksink = factory.make('gtksink')
+        self._view._addVideo(gtksink)
+
+    def on_destroy(self, win):
+        Gtk.main_quit()
+
+
+
+class myView(Gtk.Window):
+    __gsignals__ = {
+        'button1-clicked': (GObject.SignalFlags.RUN_FIRST, None, ())
+    }
+    def __init__(self, **kw):
+        super(myView, self).__init__(default_width=200, default_height=200, **kw)
+        #self.window = Gtk.ApplicationWindow()
+        self.hbox = Gtk.HBox()
+        self.add(self.hbox)
+
+
+
+        # self.window.connect('destroy', on_destroy)
+
+        self._setup()
+        self._update()
+
+    def _setup(self):
+        button = Gtk.Button("Add channel")
+        button.connect("clicked", self._button1pressed)
+        self.hbox.add(button)
+
+    def _update(self):
+        self.show_all()
+
+    def _button1pressed(self,obj):
+        print("VIEW: button1pressed")
+        self.emit('button1-clicked')
+
+
+
+    def _addVideo(self,gtksink):
+        #print(obj)
+        #print(type(obj))
+        print("add video")
+        #widget = GstWidget('videotestsrc pattern=1')
+
+
 
         widget = GstWidget(gtksink)
         
         widget.set_size_request(200, 200)
-
-        self.vbox.add(widget)
+        vbox = Gtk.VBox()
+        vbox.add(widget)
         button = Gtk.Button("Start")
-        self.vbox.add(button)
+        vbox.add(button)
 
-        self.window.show_all()
+        self.hbox.add(vbox)
+
+        #self.window.show_all()
+        self._update()
 
 class myModel:
     def __init__(self):
