@@ -33,54 +33,26 @@ class GstWidget(Gtk.Box):
         #pipeline.set_state(Gst.State.PLAYING)
 
 
-class myController(object):
-    def __init__(self,view,model):
+class myController:
+    def __init__(self,view):
         self._view = view
-        self._model = model
-        self._view.connect('button-addChannel-clicked', self._addVideo)
-        self._view.connect('button-startChannel-clicked', self._startVideo)
+        self._view.connect('button1-clicked', self._addVideo)
         self._view.connect('destroy', self.on_destroy)
-
-    def on_destroy(self, win):
-        Gtk.main_quit()
 
     def _addVideo(self, button):
         pipeline = Gst.Pipeline()
-
-        # create and send gtksink to view
         factory = pipeline.get_factory()
         gtksink = factory.make('gtksink')
-        self._view._addVideoView(gtksink)
+        self._view._addVideo(gtksink)
 
-
-        # model
-        self._model._addChannel()
-
-        # start pipeline
-        stringPipeline = "videotestsrc"
-        _bin = Gst.parse_bin_from_description(stringPipeline, True)
-        pipeline.add(_bin)
-        pipeline.add(gtksink)
-        # Link the pipeline to the sink that will display the video.
-        _bin.link(gtksink)
-        pipeline.set_state(Gst.State.PLAYING)
-
-    def _startVideo(self,button):
-        print("starting video")
-
-
-
-
-
-
-
+    def on_destroy(self, win):
+        Gtk.main_quit()
 
 
 
 class myView(Gtk.Window):
     __gsignals__ = {
-        'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ())
+        'button1-clicked': (GObject.SignalFlags.RUN_FIRST, None, ())
     }
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
@@ -96,24 +68,20 @@ class myView(Gtk.Window):
         self._update()
 
     def _setup(self):
-        button_addChannel = Gtk.Button("Add channel")
-        button_addChannel.connect("clicked", self._button_addChannel_pressed)
-        self.hbox.add(button_addChannel)
+        button = Gtk.Button("Add channel")
+        button.connect("clicked", self._button1pressed)
+        self.hbox.add(button)
 
     def _update(self):
         self.show_all()
 
-    def _button_addChannel_pressed(self,obj):
-        print("VIEW: button-addChannel-pressed")
-        self.emit('button-addChannel-clicked')
-
-    def _button_startChannel_pressed(self,obj):
-        print("VIEW: button-startChannel-pressed")
-        self.emit('button-startChannel-clicked')
+    def _button1pressed(self,obj):
+        print("VIEW: button1pressed")
+        self.emit('button1-clicked')
 
 
 
-    def _addVideoView(self,gtksink):
+    def _addVideo(self,gtksink):
         #print(obj)
         #print(type(obj))
         print("add video")
@@ -126,9 +94,8 @@ class myView(Gtk.Window):
         widget.set_size_request(200, 200)
         vbox = Gtk.VBox()
         vbox.add(widget)
-        button_start = Gtk.Button("Start")
-        button_start.connect("clicked", self._button_startChannel_pressed)
-        vbox.add(button_start)
+        button = Gtk.Button("Start")
+        vbox.add(button)
 
         self.hbox.add(vbox)
 
@@ -136,17 +103,8 @@ class myView(Gtk.Window):
         self._update()
 
 class myModel:
-    @property
-    def greetee(self):
-        return 'World'
-
     def __init__(self):
-        self._channels = []
-
-    def _addChannel(self):
         pass
-
-
 
 
 
@@ -156,7 +114,6 @@ if __name__ == "__main__":
     # window = Gtk.ApplicationWindow()
 
     view = myView()
-    model = myModel()
 
 
     # vbox = Gtk.VBox()
@@ -165,7 +122,7 @@ if __name__ == "__main__":
     # window.add(vbox)
 
     # model
-    controller = myController(view,model)
+    controller = myController(view)
 
     # Create a gstreamer pipeline with no sink. 
     # A sink will be created inside the GstWidget.
