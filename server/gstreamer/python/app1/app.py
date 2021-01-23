@@ -42,6 +42,7 @@ class myController(object):
         self._view.connect('button-addChannel-clicked', self._addVideo)
         self._view.connect('button-startChannel-clicked', self._startVideo)
         self._view.connect('button-stopChannel-clicked', self._stopVideo)
+        self._view.connect('combobox-input-changed', self._inputChanged)
         self._view.connect('destroy', self.on_destroy)
 
         
@@ -67,7 +68,7 @@ class myController(object):
         #gtksink = factory.make('gtksink')
         self._view._addVideoView(_gtksink)
 
-        self._model._setTestsrc(channelNum)
+        #self._model._setTestsrc(channelNum)
 
 
 
@@ -88,7 +89,13 @@ class myController(object):
         self._model._stop(channelNum)
         #channel._play()
 
+    def _inputChanged(self,combo,channelNum, inputNum):
+        print("input changed")
+        #print(combo)
+        print("channel",channelNum)
+        print("input",inputNum)
 
+        self._model._setInput(channelNum,inputNum)
 
 
 
@@ -102,7 +109,8 @@ class myView(Gtk.Window):
     __gsignals__ = {
         'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,))
+        'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,int,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
@@ -143,11 +151,13 @@ class myView(Gtk.Window):
 
 
 
-    def on_changed(self, combo):
+    def on_changed(self, combo, channelNum):
         # if the row selected is not the first one, write its value on the
         # terminal
         if combo.get_active() != 0:
             print("You chose " + str(self._inputs[combo.get_active()][0]) + ".")
+            self.emit('combobox-input-changed',int(channelNum),int(combo.get_active()))
+
         return True
 
 
@@ -203,7 +213,7 @@ class myView(Gtk.Window):
 
         # connect the signal emitted when a row is selected to the callback
         # function
-        combobox.connect("changed", self.on_changed)
+        combobox.connect("changed", self.on_changed, channelNumber)
 
         # add the combobox to the window
         vbox.add(combobox)
@@ -251,6 +261,11 @@ class gstChannel:
     def _stop(self):
         self._pipeline.set_state(Gst.State.NULL)
 
+    def _setInput(self,inputNum):
+        if inputNum == 1:
+            print('setting videotestsec')
+            self._setTestsrc()
+
 
 
 
@@ -281,6 +296,9 @@ class myModel:
         
     def _stop(self,channelNum):
         self._channels[channelNum]._stop()
+
+    def _setInput(self,channelNum,inputNum):
+        self._channels[channelNum]._setInput(inputNum)
 
 
 
