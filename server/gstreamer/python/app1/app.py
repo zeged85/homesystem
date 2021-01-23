@@ -89,13 +89,13 @@ class myController(object):
         self._model._stop(channelNum)
         #channel._play()
 
-    def _inputChanged(self,combo,channelNum, inputNum):
+    def _inputChanged(self,combo,channelNum, inputType):
         print("input changed")
         #print(combo)
         print("channel",channelNum)
-        print("input",inputNum)
+        print("input",inputType)
 
-        self._model._setInput(channelNum,inputNum)
+        self._model._setInput(channelNum,inputType)
 
 
 
@@ -110,7 +110,7 @@ class myView(Gtk.Window):
         'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,int,))
+        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int,str,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
@@ -120,7 +120,7 @@ class myView(Gtk.Window):
         self.add(self.hbox)
         
         # TODO: popUP - for local file browser
-        self._inputs = [["Select input"], ["test-src"], ["local file"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
+        self._inputs = [["Select input"], ["test-src"], ["local file"], ["DVB"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
 
 
 
@@ -155,8 +155,9 @@ class myView(Gtk.Window):
         # if the row selected is not the first one, write its value on the
         # terminal
         if combo.get_active() != 0:
+            inputType = str(self._inputs[combo.get_active()][0])
             print("You chose " + str(self._inputs[combo.get_active()][0]) + ".")
-            self.emit('combobox-input-changed',int(channelNum),int(combo.get_active()))
+            self.emit('combobox-input-changed',int(channelNum),str(inputType))
 
         return True
 
@@ -249,10 +250,51 @@ class gstChannel:
         stringPipeline = "videotestsrc"
         self._bin = Gst.parse_bin_from_description(stringPipeline, True)
         self._pipeline.add(self._bin)
-        self._pipeline.add(self.gtksink)
+        self._pipeline.add(self._gtksink)
         # Link the pipeline to the sink that will display the video.
-        self._bin.link(self.gtksink)
+        self._bin.link(self._gtksink)
 
+    def _setScreenCapture(self):
+        #stringPipeline = "videotestsrc pattern=1"
+        #self._bin = Gst.parse_bin_from_description(stringPipeline, True)
+        #self._src = self.factory.make('videotestsrc')
+        #self.player.get_by_name("file-source").set_property("location", filepath)
+        
+        #source = Gst.ElementFactory.make("videotestsrc", "test-source")
+        #source.set_property("pattern", 1)
+        
+        #source = Gst.ElementFactory.make("dx9screencapsrc", "test-source")
+        #source = Gst.ElementFactory.make("gdiscreencapsrc", "test-source") # slow - supports multi channel
+        source = Gst.ElementFactory.make("dxgiscreencapsrc", "test-source") # - fast, but singleton
+        if not source:
+            print('source error')
+            return
+        #source.set_property("pattern", 1)
+        #source.set_property("width", 200)
+        #source.set_property("height", 200)
+        #source.set_property("monitor", 0)
+
+
+        convert = Gst.ElementFactory.make("videoconvert", "source-convert")
+        scale = Gst.ElementFactory.make("videoscale", "source-scale")
+
+        caps = Gst.Caps.from_string("video/x-raw, width=200,height=200")
+        filter = Gst.ElementFactory.make("capsfilter", "filter")
+        filter.set_property("caps", caps)
+        
+        
+        
+        
+        self._pipeline.add(source)
+        self._pipeline.add(filter)
+        self._pipeline.add(convert)
+        self._pipeline.add(scale)
+        self._pipeline.add(self._gtksink)
+        # Link the pipeline to the sink that will display the video.
+        source.link(convert)
+        convert.link(scale)
+        scale.link(filter)
+        filter.link(self._gtksink)
     
     def _play(self):    
         # start pipeline
@@ -261,10 +303,20 @@ class gstChannel:
     def _stop(self):
         self._pipeline.set_state(Gst.State.NULL)
 
-    def _setInput(self,inputNum):
-        if inputNum == 1:
+    def _setInput(self,inputType):
+        #self._inputs = [["Select input"], ["test-src"], ["local file"], ["DVB"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
+        if inputType == "test-src":
             print('setting videotestsec')
             self._setTestsrc()
+        elif inputType == 'local file':
+            print('local file')
+        elif inputType == 'DVB':
+            print('DVB')
+        elif inputType == 'Screen Capture':
+            print('screen capture')
+            self._setScreenCapture()
+
+
 
 
 
@@ -297,8 +349,8 @@ class myModel:
     def _stop(self,channelNum):
         self._channels[channelNum]._stop()
 
-    def _setInput(self,channelNum,inputNum):
-        self._channels[channelNum]._setInput(inputNum)
+    def _setInput(self,channelNum,inputType):
+        self._channels[channelNum]._setInput(inputType)
 
 
 
