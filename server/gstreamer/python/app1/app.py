@@ -42,6 +42,7 @@ class myController(object):
         self._view.connect('button-addChannel-clicked', self._addVideo)
         self._view.connect('button-startChannel-clicked', self._startVideo)
         self._view.connect('destroy', self.on_destroy)
+        self._channels = []
 
     def on_destroy(self, win):
         Gtk.main_quit()
@@ -52,6 +53,7 @@ class myController(object):
 
         # model
         channel = self._model._createChannel()
+        self._channels.append(channel)
         _gtksink = channel.gtksink
 
         # standalone
@@ -98,8 +100,10 @@ class myController(object):
 
 
 
-    def _startVideo(self,button):
-        print("starting video")
+    def _startVideo(self,button, arg):
+        print("starting video",arg)
+        channel = self._channels[0]
+        channel._stop()
 
 
 
@@ -111,9 +115,11 @@ class myController(object):
 
 
 class myView(Gtk.Window):
+    # https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html
+    # emit w/ args
     __gsignals__ = {
         'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ())
+        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
@@ -129,7 +135,7 @@ class myView(Gtk.Window):
         self._update()
 
     def _setup(self):
-        button_addChannel = Gtk.Button("Add channel")
+        button_addChannel = Gtk.Button(label = "Add channel")
         button_addChannel.connect("clicked", self._button_addChannel_pressed)
         self.hbox.add(button_addChannel)
 
@@ -140,9 +146,9 @@ class myView(Gtk.Window):
         print("VIEW: button-addChannel-pressed")
         self.emit('button-addChannel-clicked')
 
-    def _button_startChannel_pressed(self,obj):
-        print("VIEW: button-startChannel-pressed")
-        self.emit('button-startChannel-clicked')
+    def _button_startChannel_pressed(self,obj,arg):
+        print(f"VIEW: button-startChannel-pressed",arg)
+        self.emit('button-startChannel-clicked',1)
 
 
 
@@ -159,8 +165,9 @@ class myView(Gtk.Window):
         widget.set_size_request(200, 200)
         vbox = Gtk.VBox()
         vbox.add(widget)
-        button_start = Gtk.Button("Start")
-        button_start.connect("clicked", self._button_startChannel_pressed)
+        button_start = Gtk.Button(label = "Start")
+
+        button_start.connect("clicked", self._button_startChannel_pressed,"1")
         vbox.add(button_start)
 
         self.hbox.add(vbox)
