@@ -33,6 +33,8 @@ class GstWidget(Gtk.Box):
         #pipeline.set_state(Gst.State.PLAYING)
 
 
+
+
 class myController(object):
     def __init__(self,view,model):
         self._view = view
@@ -45,25 +47,56 @@ class myController(object):
         Gtk.main_quit()
 
     def _addVideo(self, button):
-        pipeline = Gst.Pipeline()
 
-        # create and send gtksink to view
-        factory = pipeline.get_factory()
-        gtksink = factory.make('gtksink')
-        self._view._addVideoView(gtksink)
 
 
         # model
-        self._model._addChannel()
+        channel = self._model._createChannel()
+        _gtksink = channel.gtksink
+
+        # standalone
+        #pipeline = Gst.Pipeline()
+
+        # create and send gtksink to view
+        #factory = pipeline.get_factory()
+        #gtksink = factory.make('gtksink')
+        self._view._addVideoView(_gtksink)
+
+        channel._setTestsrc()
+
+        channel._play()
+
+        
+
+
+
+        #stringPipeline = "videotestsrc"
+        #_bin = Gst.parse_bin_from_description(stringPipeline, True)
+        #pipeline.add(_bin)
+        #pipeline.add(gtksink)
+        # Link the pipeline to the sink that will display the video.
+        #_bin.link(gtksink)
+   
+
+
+
+
+
+
+
+
+
+
+
+
 
         # start pipeline
-        stringPipeline = "videotestsrc"
-        _bin = Gst.parse_bin_from_description(stringPipeline, True)
-        pipeline.add(_bin)
-        pipeline.add(gtksink)
-        # Link the pipeline to the sink that will display the video.
-        _bin.link(gtksink)
-        pipeline.set_state(Gst.State.PLAYING)
+        #pipeline.set_state(Gst.State.PLAYING)
+
+
+        
+
+
 
     def _startVideo(self,button):
         print("starting video")
@@ -135,6 +168,42 @@ class myView(Gtk.Window):
         #self.window.show_all()
         self._update()
 
+
+class gstChannel:
+    @property
+    def gtksink(self):
+        try:
+            self._gtksink
+        except:
+            self._gtksink = self.factory.make('gtksink')
+        return self._gtksink
+
+    def __init__(self):
+        # create pipeline
+        self._pipeline = Gst.Pipeline()
+
+        # create gtksink by default
+        self.factory = self._pipeline.get_factory()
+        #self._gtksink = self.factory.make('gtksink')
+        #self._testsrc()
+
+    def _setTestsrc(self):
+        stringPipeline = "videotestsrc"
+        self._bin = Gst.parse_bin_from_description(stringPipeline, True)
+        self._pipeline.add(self._bin)
+        self._pipeline.add(self.gtksink)
+        # Link the pipeline to the sink that will display the video.
+        self._bin.link(self.gtksink)
+
+    
+    def _play(self):    
+        # start pipeline
+        self._pipeline.set_state(Gst.State.PLAYING)
+
+    def _stop(self):
+        self._pipeline.set_state(Gst.State.NULL)
+
+
 class myModel:
     @property
     def greetee(self):
@@ -143,8 +212,14 @@ class myModel:
     def __init__(self):
         self._channels = []
 
-    def _addChannel(self):
-        pass
+    def _createChannel(self):
+        print("model add (create) channel")
+
+        channel = gstChannel()
+        self._channels.append(channel)
+
+        return channel
+        
 
 
 
