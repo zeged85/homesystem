@@ -43,6 +43,7 @@ class myController(object):
         self._view.connect('button-startChannel-clicked', self._startVideo)
         self._view.connect('destroy', self.on_destroy)
         self._channels = []
+        
 
     def on_destroy(self, win):
         Gtk.main_quit()
@@ -66,7 +67,7 @@ class myController(object):
 
         channel._setTestsrc()
 
-        channel._play()
+        #channel._play()
 
         
 
@@ -102,8 +103,9 @@ class myController(object):
 
     def _startVideo(self,button, arg):
         print("starting video",arg)
-        channel = self._channels[0]
-        channel._stop()
+        channel = self._channels[arg]
+        #channel._stop()
+        channel._play()
 
 
 
@@ -124,6 +126,7 @@ class myView(Gtk.Window):
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
         #self.window = Gtk.ApplicationWindow()
+        self._channels = -1
         self.hbox = Gtk.HBox()
         self.add(self.hbox)
 
@@ -148,7 +151,7 @@ class myView(Gtk.Window):
 
     def _button_startChannel_pressed(self,obj,arg):
         print(f"VIEW: button-startChannel-pressed",arg)
-        self.emit('button-startChannel-clicked',1)
+        self.emit('button-startChannel-clicked',int(arg))
 
 
 
@@ -157,8 +160,8 @@ class myView(Gtk.Window):
         #print(type(obj))
         print("add video")
         #widget = GstWidget('videotestsrc pattern=1')
-
-
+        self._channels+=1
+        channelNumber = self._channels
 
         widget = GstWidget(gtksink)
         
@@ -167,7 +170,7 @@ class myView(Gtk.Window):
         vbox.add(widget)
         button_start = Gtk.Button(label = "Start")
 
-        button_start.connect("clicked", self._button_startChannel_pressed,"1")
+        button_start.connect("clicked", self._button_startChannel_pressed,channelNumber)
         vbox.add(button_start)
 
         self.hbox.add(vbox)
