@@ -63,6 +63,11 @@ sudo apt install python3-pip
 sudo pip3 install pytube3
 ```
 
+## youtube-dl
+```
+#http://lifestyletransfer.com/how-to-watch-youtube-videos-with-gstreamer/
+gst-launch-1.0 souphttpsrc is-live=true location="$(youtube-dl --format "best[ext=mp4][protocol=https]" --get-url https://www.youtube.com/watch?v=ndl1W4ltcmg)" ! decodebin ! videoconvert ! autovideosink
+```
 
 
 ## DVB

@@ -120,7 +120,7 @@ class myView(Gtk.Window):
         self.add(self.hbox)
         
         # TODO: popUP - for local file browser
-        self._inputs = [["Select input"], ["test-src"], ["local file"], ["DVB"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
+        self._inputs = [["Select input"], ["test-src"], ["local file"], ["DVB"], ["Screen Capture"], ["USB-Camera"], ["youtube"], ["torrent"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
 
 
 
@@ -245,6 +245,17 @@ class gstChannel:
         self.factory = self._pipeline.get_factory()
         #self._gtksink = self.factory.make('gtksink')
         #self._testsrc()
+        self.bus = self._pipeline.get_bus()
+        self.bus.add_signal_watch()
+        self.bus.connect("message", self.on_message)
+
+    def on_message(self, bus, message):
+            typ = message.type
+            print(typ)
+            err, debug = message.parse_error()
+            print("Error: ",err, debug)
+            print('Error {}: {}, {}'.format(message.src.name, *message.parse_error()))
+            #self.player.set_state(Gst.State.NULL)
 
     def _setTestsrc(self):
         stringPipeline = "videotestsrc"
@@ -295,6 +306,58 @@ class gstChannel:
         convert.link(scale)
         scale.link(filter)
         filter.link(self._gtksink)
+
+    def _setYoutube(self):
+        import subprocess
+        #proc = subprocess.Popen('youtube-dl --format "best[ext=mp4][protocol=https]" --get-url https://www.youtube.com/watch?v=ndl1W4ltcmg', stdout=subprocess.PIPE)
+        #output = proc.stdout.read()
+        #print(output)
+        #tst = output.decode('ascii')
+        tst = """https://r2---sn-m4vox-ua8s.googlevideo.com/videoplayback?expire=1611440572&ei=XE0MYNb6MMSy1gKuoLroBA&ip=5.102.225.128&id=o-ABL3Py2cF11LPkGmR95rtyaNKuvw1ByfnR0Z582bnIU7&itag=22&source=youtube&requiressl=yes&mh=eV&mm=31%2C29&mn=sn-m4vox-ua8s%2Csn-4g5edne7&ms=au%2Crdu&mv=m&mvi=2&pl=20&initcwndbps=545000&vprv=1&mime=video%2Fmp4&ns=LuxaOK8Z-E3T4WGZaJS3AvoF&ratebypass=yes&dur=140.387&lmt=1572989225009924&mt=1611418611&fvip=2&c=WEB&txp=5532432&n=2QXaIpEZGqGgV8H&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cvprv%2Cmime%2Cns%2Cratebypass%2Cdur%2Clmt&sig=AOq0QJ8wRQIhAKaiGKyGSn1lhhKdo14mAEQwjAwczJPf4Nufpa_uAHmbAiA6Qtd_tOEsCIMQ3VcSQUtHipeHu9uG5oyrleyn25ycwA%3D%3D&lsparams=mh%2Cmm%2Cmn%2Cms%2Cmv%2Cmvi%2Cpl%2Cinitcwndbps&lsig=AG3C_xAwRgIhAID4GBxljfkGRGZXv0nk9kT7rhcvM67aDWerCXaS6fX7AiEA9IwlsN5U-Eif0o1c9OEVTB_Y3jcyx422axs4sTtpnDg%3D"""
+        stringPipeline = f'souphttpsrc is-live=true location="{tst}" ! decodebin ! videoconvert ! videoscale ! autovideosink'
+        
+        #stringPipeline = f'souphttpsrc is-live=true name=src ! decodebin ! videoconvert'
+        """self._bin = Gst.parse_bin_from_description(stringPipeline, True)
+        print(self._bin)
+        if not self._bin:
+            print('source error')
+            return
+        self._pipeline.add(self._bin)"""
+
+        source = Gst.ElementFactory.make("souphttpsrc", "youtube-source") # - fast, but singleton
+        if not source:
+            print('source error')
+            return
+        source.set_property("is-live", True)
+        source.set_property("location", tst)
+
+        decode = Gst.ElementFactory.make("decodebin", "youtube-decode")
+        convert = Gst.ElementFactory.make("videoconvert", "youtube-convert")
+        #scale = Gst.ElementFactory.make("videoscale", "youtube-scale")
+
+        #caps = Gst.Caps.from_string("video/x-raw, width=200,height=200")
+        #filter = Gst.ElementFactory.make("capsfilter", "filter")
+        #filter.set_property("caps", caps)
+                  
+        #src = self._pipeline.get_by_name("src")
+        #print('again')
+        #nl = output.decode('ascii')#[:-1]
+        #print(nl)
+        #src.set_property('location', nl)
+        self._pipeline.add(source)
+        self._pipeline.add(decode)
+        self._pipeline.add(convert)
+        #self._pipeline.add(scale)
+        #self._pipeline.add(filter)
+        self._pipeline.add(self._gtksink)
+        decode.link(convert)
+        convert.link(self._gtksink)
+        #scale.link(filter)
+        #scale.link(self._gtksink)
+        #filter.link(self._gtksink)
+    
+        # Link the pipeline to the sink that will display the video.
+        #self._bin.link(self._gtksink)
     
     def _play(self):    
         # start pipeline
@@ -315,6 +378,9 @@ class gstChannel:
         elif inputType == 'Screen Capture':
             print('screen capture')
             self._setScreenCapture()
+        elif inputType == 'youtube':
+            print('youtube')
+            self._setYoutube()
 
 
 
