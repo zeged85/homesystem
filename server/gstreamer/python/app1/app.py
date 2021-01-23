@@ -41,6 +41,7 @@ class myController(object):
         self._model = model
         self._view.connect('button-addChannel-clicked', self._addVideo)
         self._view.connect('button-startChannel-clicked', self._startVideo)
+        self._view.connect('button-stopChannel-clicked', self._stopVideo)
         self._view.connect('destroy', self.on_destroy)
         self._channels = []
         
@@ -107,6 +108,11 @@ class myController(object):
         #channel._stop()
         channel._play()
 
+    def _stopVideo(self,button, arg):
+        print("stopping video",arg)
+        channel = self._channels[arg]
+        channel._stop()
+        #channel._play()
 
 
 
@@ -121,7 +127,8 @@ class myView(Gtk.Window):
     # emit w/ args
     __gsignals__ = {
         'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
-        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,))
+        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(default_width=200, default_height=200, **kw)
@@ -153,6 +160,9 @@ class myView(Gtk.Window):
         print(f"VIEW: button-startChannel-pressed",arg)
         self.emit('button-startChannel-clicked',int(arg))
 
+    def _button_stopChannel_pressed(self,obj,arg):
+        print(f"VIEW: button-stopChannel-pressed",arg)
+        self.emit('button-stopChannel-clicked',int(arg))
 
 
     def _addVideoView(self,gtksink):
@@ -163,15 +173,25 @@ class myView(Gtk.Window):
         self._channels+=1
         channelNumber = self._channels
 
+        # Video View
         widget = GstWidget(gtksink)
-        
         widget.set_size_request(200, 200)
         vbox = Gtk.VBox()
         vbox.add(widget)
-        button_start = Gtk.Button(label = "Start")
 
+        # Start / Stop Buttons
+        hbox_transport = Gtk.HBox()
+        vbox.add(hbox_transport)
+        # start
+        button_start = Gtk.Button(label = "Start")
         button_start.connect("clicked", self._button_startChannel_pressed,channelNumber)
-        vbox.add(button_start)
+        hbox_transport.add(button_start)
+        # stop
+        button_stop = Gtk.Button(label = "Stop")
+        button_stop.connect("clicked", self._button_stopChannel_pressed,channelNumber)
+        hbox_transport.add(button_stop)
+
+        
 
         self.hbox.add(vbox)
 
