@@ -54,9 +54,10 @@ class myController(object):
 
 
         # model
-        channel = self._model._createChannel()
-        self._channels.append(channel)
-        _gtksink = channel.gtksink
+        channelNum = self._model._createChannel()
+        #self._channels.append(channel)
+        _gtksink = self._model._getGtksink(channelNum)
+        #_gtksink = channel.gtksink
 
         # standalone
         #pipeline = Gst.Pipeline()
@@ -66,52 +67,25 @@ class myController(object):
         #gtksink = factory.make('gtksink')
         self._view._addVideoView(_gtksink)
 
-        channel._setTestsrc()
-
-        #channel._play()
-
-        
+        self._model._setTestsrc(channelNum)
 
 
-
-        #stringPipeline = "videotestsrc"
-        #_bin = Gst.parse_bin_from_description(stringPipeline, True)
-        #pipeline.add(_bin)
-        #pipeline.add(gtksink)
-        # Link the pipeline to the sink that will display the video.
-        #_bin.link(gtksink)
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-        # start pipeline
-        #pipeline.set_state(Gst.State.PLAYING)
 
 
         
 
 
 
-    def _startVideo(self,button, arg):
-        print("starting video",arg)
-        channel = self._channels[arg]
+    def _startVideo(self,button, channelNum):
+        print("starting video",channelNum)
+        #channel = self._channels[arg]
         #channel._stop()
-        channel._play()
+        self._model._play(channelNum)
 
-    def _stopVideo(self,button, arg):
-        print("stopping video",arg)
-        channel = self._channels[arg]
-        channel._stop()
+    def _stopVideo(self,button, channelNum):
+        print("stopping video",channelNum)
+        #channel = self._channels[arg]
+        self._model._stop(channelNum)
         #channel._play()
 
 
@@ -179,7 +153,7 @@ class myView(Gtk.Window):
         vbox = Gtk.VBox()
         vbox.add(widget)
 
-        # Start / Stop Buttons
+        # Start / Stop Buttons - transport layer
         hbox_transport = Gtk.HBox()
         vbox.add(hbox_transport)
         # start
@@ -234,6 +208,8 @@ class gstChannel:
         self._pipeline.set_state(Gst.State.NULL)
 
 
+
+
 class myModel:
     @property
     def greetee(self):
@@ -248,8 +224,19 @@ class myModel:
         channel = gstChannel()
         self._channels.append(channel)
 
-        return channel
+        return (len(self._channels)-1)
+
+    def _getGtksink(self,channelNum):
+        return self._channels[channelNum].gtksink
+
+    def _setTestsrc(self,channelNum):
+        self._channels[channelNum]._setTestsrc()
+
+    def _play(self,channelNum):
+        self._channels[channelNum]._play()
         
+    def _stop(self,channelNum):
+        self._channels[channelNum]._stop()
 
 
 
