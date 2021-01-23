@@ -43,7 +43,7 @@ class myController(object):
         self._view.connect('button-startChannel-clicked', self._startVideo)
         self._view.connect('button-stopChannel-clicked', self._stopVideo)
         self._view.connect('destroy', self.on_destroy)
-        self._channels = []
+
         
 
     def on_destroy(self, win):
@@ -110,6 +110,9 @@ class myView(Gtk.Window):
         self._channels = -1
         self.hbox = Gtk.HBox()
         self.add(self.hbox)
+        
+        # TODO: popUP - for local file browser
+        self._inputs = [["Select input"], ["test-src"], ["local file"], ["UDP"], ["TCP"]]
 
 
 
@@ -139,6 +142,15 @@ class myView(Gtk.Window):
         self.emit('button-stopChannel-clicked',int(arg))
 
 
+
+    def on_changed(self, combo):
+        # if the row selected is not the first one, write its value on the
+        # terminal
+        if combo.get_active() != 0:
+            print("You chose " + str(self._inputs[combo.get_active()][0]) + ".")
+        return True
+
+
     def _addVideoView(self,gtksink):
         #print(obj)
         #print(type(obj))
@@ -155,7 +167,6 @@ class myView(Gtk.Window):
 
         # Start / Stop Buttons - transport layer
         hbox_transport = Gtk.HBox()
-        vbox.add(hbox_transport)
         # start
         button_start = Gtk.Button(label = "Start")
         button_start.connect("clicked", self._button_startChannel_pressed,channelNumber)
@@ -164,6 +175,39 @@ class myView(Gtk.Window):
         button_stop = Gtk.Button(label = "Stop")
         button_stop.connect("clicked", self._button_stopChannel_pressed,channelNumber)
         hbox_transport.add(button_stop)
+
+        vbox.add(hbox_transport)
+        # ComboBox
+        # TODO: move to own class
+
+        listmodel = Gtk.ListStore(str)
+        # append the data in the model
+        for i in range(len(self._inputs)):
+            listmodel.append(self._inputs[i])
+
+        # a combobox to see the data stored in the model
+        combobox = Gtk.ComboBox(model=listmodel)
+
+        # a cellrenderer to render the text
+        cell = Gtk.CellRendererText()
+
+        # pack the cell into the beginning of the combobox, allocating
+        # no more space than needed
+        combobox.pack_start(cell, False)
+        # associate a property ("text") of the cellrenderer (cell) to a column (column 0)
+        # in the model used by the combobox
+        combobox.add_attribute(cell, "text", 0)
+
+        # the first row is the active one by default at the beginning
+        combobox.set_active(0)
+
+        # connect the signal emitted when a row is selected to the callback
+        # function
+        combobox.connect("changed", self.on_changed)
+
+        # add the combobox to the window
+        vbox.add(combobox)
+
 
         
 
