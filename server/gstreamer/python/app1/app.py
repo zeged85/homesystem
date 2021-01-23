@@ -120,7 +120,7 @@ class myView(Gtk.Window):
         self.add(self.hbox)
         
         # TODO: popUP - for local file browser
-        self._inputs = [["Select input"], ["test-src"], ["local file"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"]]
+        self._inputs = [["Select input"], ["test-src"], ["local file"], ["Screen Capture"], ["USB-Camera"], ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
 
 
 
