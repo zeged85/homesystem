@@ -6,6 +6,11 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 
 
+class PathField():
+    def __init__(self):
+        pass
+
+
 class myView(Gtk.Window):
     # https://python-gtk-3-tutorial.readthedocs.io/en/latest/objects.html
     # emit w/ args
@@ -18,9 +23,10 @@ class myView(Gtk.Window):
 
     def __init__(self, **kw):
         super(myView, self).__init__(
-            default_width=200, default_height=200, **kw)
+            default_width=100, default_height=100, **kw)
         # self.window = Gtk.ApplicationWindow()
-        self._channels = -1
+        self._channels = {}
+        self.channelNumber = 0
         self.hbox = Gtk.HBox()
         self.add(self.hbox)
         # TODO: popUP - for local file browser
@@ -60,38 +66,43 @@ class myView(Gtk.Window):
         if combo.get_active() != 0:
             inputType = str(self._inputs[combo.get_active()][0])
             print(
-                "You chose " + str(self._inputs[combo.get_active()][0]) + ".")
+                "You chose " + inputType + ".")
             self.emit(
                 'combobox-input-changed', int(channelNum), str(inputType))
+            if inputType == "youtube":
+                self._addPathField(channelNum)
 
         return True
 
-    def _addVideoView(self, gtksink):
-        print("add video")
-        # widget = GstWidget('videotestsrc pattern=1')
-        self._channels += 1
-        channelNumber = self._channels
+    def _addPathField(self, channelNum):
+        hbox_field = Gtk.HBox()
+        field = Gtk.Entry()
+        hbox_field.add(field)
+        line = self._channels[channelNum]['vbox']
+        # line.pack_start(hbox_field, True, True, 0)
+        line.pack_end(hbox_field, True, True, 0)
+        
+        # line.add(hbox_field)
+        self._update()  # refresh window
+        
 
-        # Video View
-        widget = GstWidget(gtksink)
-        widget.set_size_request(200, 200)
-        vbox = Gtk.VBox()
-        vbox.add(widget)
 
+    def _createTransportBar(self):
         # Start / Stop Buttons - transport layer
         hbox_transport = Gtk.HBox()
         # start
         button_start = Gtk.Button(label="Start")
         button_start.connect(
-            "clicked", self._button_startChannel_pressed, channelNumber)
+            "clicked", self._button_startChannel_pressed, self.channelNumber)
         hbox_transport.add(button_start)
         # stop
         button_stop = Gtk.Button(label="Stop")
         button_stop.connect(
-            "clicked", self._button_stopChannel_pressed, channelNumber)
+            "clicked", self._button_stopChannel_pressed, self.channelNumber)
         hbox_transport.add(button_stop)
+        return hbox_transport
 
-        vbox.add(hbox_transport)
+    def _createSourceBox(self):
         # ComboBox
         # TODO: move to own class
 
@@ -119,12 +130,31 @@ class myView(Gtk.Window):
 
         # connect the signal emitted when a row is selected to the callback
         # function
-        combobox.connect("changed", self.on_changed, channelNumber)
+        combobox.connect("changed", self.on_changed, self.channelNumber)
+        return combobox
 
+    def _addVideoView(self, gtksink):
+        print("add video")
+        # widget = GstWidget('videotestsrc pattern=1')
+        # channelNumber = len(self._channels)
+
+        # Video View
+        widget = GstWidget(gtksink)
+        widget.set_size_request(200, 200)
+        vbox = Gtk.VBox()
+        vbox.add(widget)
+
+        hbox_transport = self._createTransportBar()
+        vbox.add(hbox_transport)
+        
         # add the combobox to the window
+        combobox = self._createSourceBox()
         vbox.add(combobox)
-
         self.hbox.add(vbox)
 
+        self._channels[self.channelNumber] = {
+            'vbox': vbox
+        }
+        self.channelNumber += 1
         # self.window.show_all()
         self._update()

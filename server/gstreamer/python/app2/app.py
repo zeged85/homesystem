@@ -86,10 +86,13 @@ class gstChannel:
             print('else', typ)
 
     def _setYoutube3(self):
+
+        uri = """https://www.youtube.com/watch?v=ndl1W4ltcmg"""
+
         import subprocess
         proc = subprocess.Popen(
-            'youtube-dl --format "best[ext=mp4][protocol=https]" --get-url \
-                https://www.youtube.com/watch?v=ndl1W4ltcmg \
+            f'youtube-dl --format "best[ext=mp4][protocol=https]" --get-url \
+                {uri} \
                     ', stdout=subprocess.PIPE)
         output = proc.stdout.read()
         print(output)
@@ -110,7 +113,11 @@ class gstChannel:
         queue.link(effect)
         effect.link(self._gtksink)
         player.set_property("video-sink", bin)
-        player.set_state(Gst.State.PLAYING)
+        self._pipeline.add(player)
+        # self._pipeline.add(queue)
+        # self._pipeline.add(bin)
+        # self._pipeline.add(self._gtksink)
+        # player.set_state(Gst.State.PLAYING)
 
 
     def _setLocalFile(self):
