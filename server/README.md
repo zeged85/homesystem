@@ -23,6 +23,11 @@ or
 
 pacman -S mingw-w64-x86_64-gstreamer mingw-w64-x86_64-gst-devtools mingw-w64-x86_64-gst-plugins-{base,good,bad,ugly} mingw-w64-x86_64-python3 mingw-w64-x86_64-python3-gobject
 
+plus
+
+
+pacman -S mingw-w64-x86_64-gst-libav
+
 
 
 ## ssh
