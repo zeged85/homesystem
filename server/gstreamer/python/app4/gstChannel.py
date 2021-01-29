@@ -3,6 +3,7 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
+
 class gstChannel:
     @property
     def gtksink(self):
@@ -72,9 +73,7 @@ class gstChannel:
 
         import subprocess
         proc = subprocess.Popen(
-            f'youtube-dl --format "best[ext=mp4][protocol=https]" --get-url \
-                {uri} \
-                    ', stdout=subprocess.PIPE)
+            f'youtube-dl --format "best[ext=mp4][protocol=https]" --get-url {uri}', stdout=subprocess.PIPE, shell=True)
         output = proc.stdout.read()
         print(output)
         tst = output.decode('ascii')
@@ -198,7 +197,16 @@ class gstChannel:
         # source.set_property("pattern", 1)   
         # source = Gst.ElementFactory.make("dx9screencapsrc", "test-source")
         # source = Gst.ElementFactory.make("gdiscreencapsrc", "test-source") # slow - supports multi channel
-        source = Gst.ElementFactory.make("dxgiscreencapsrc", "test-source") # - fast, but singleton
+
+
+        import os
+        if os.name == 'posix':
+            print('linux')
+            source = Gst.ElementFactory.make("ximagesrc", "test-source") # - linux
+        else:  # if os.name == 'nt':
+            print('windows')
+            source = Gst.ElementFactory.make("dxgiscreencapsrc", "test-source") # - fast, but singleton
+
         if not source:
             print('source error')
             return
