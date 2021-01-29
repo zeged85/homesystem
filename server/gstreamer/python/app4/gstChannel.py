@@ -38,6 +38,34 @@ class gstChannel:
         else:
             print('else', typ)
 
+
+    def _setUDP(self):
+        # _bin = Gst.parse_bin_from_description(pipeline, True)
+        # pipeline = Gst.Pipeline()
+        # bus = self._pipeline.get_bus()
+        # bus.add_signal_watch()
+        # bus.enable_sync_message_emission()
+        factory = self._pipeline.get_factory()
+        # gtksink = factory.make('gtksink')
+
+        # p = Gst.parse_launch("v4l2src ! videoconvert ! gtksink name=sink")                                             
+        # p = Gst.parse_launch("videotestsrc ! videoconvert ! gtksink name=sink") 
+        stringPipeline = """udpsrc uri=udp://localhost:5000 caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! rtph264depay ! decodebin ! videoconvert ! queue name=convert ! gtksink name=sink"""                                            
+        p = Gst.parse_launch(stringPipeline) 
+        self._gtksink = p.get_by_name("sink")
+        # box.pack_start(s.props.widget, ...)
+
+        # pipeline.add(self._bin)
+        self._pipeline.add(p)
+        # pipeline.add(s)
+        # Link the pipeline to the sink that will display the video.
+        # self._bin.link(s)
+        
+        # self.pack_start(s.props.widget, True, True, 0)
+        # s.props.widget.show()
+        # Start the video
+        # pipeline.set_state(Gst.State.PLAYING)
+
     def _setYoutube3(self):
 
         uri = """https://www.youtube.com/watch?v=ndl1W4ltcmg"""
@@ -281,7 +309,7 @@ class gstChannel:
         # decode.link(self._gtksink)
         self._pipeline.set_state(Gst.State.PLAYING)
 
-    def _setUDP(self):
+    def _setUDP2(self):
 
         """self._bin = Gst.parse_bin_from_description(stringPipeline, True)
         print(self._bin)

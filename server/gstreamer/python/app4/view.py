@@ -139,6 +139,17 @@ class myView(Gtk.Window):
 
     # def _createSourceField(self):
 
+    def _setVideoView(self,gtksink, channelNum):
+        video_box = self._channels.get(channelNum)['video_box']
+        children = video_box.get_children ()
+        for element in children:
+            video_box.remove (element)
+
+        video_widget = gtksink.get_property("widget")
+        video_widget.set_size_request(200, 200)
+        video_box.add(video_widget)
+        self._update()
+
     def _addVideoView(self, gtksink):
         print("add video")
         # widget = GstWidget('videotestsrc pattern=1')
@@ -169,7 +180,8 @@ class myView(Gtk.Window):
         self.hbox.add(vbox)
 
         self._channels[self.channelNumber] = {
-            'vbox': vbox
+            'vbox': vbox,
+            'video_box': video_box
         }
         self.channelNumber += 1
         # self.window.show_all()

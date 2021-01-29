@@ -57,8 +57,10 @@ class myController(object):
         self._model._setInput(channelNum, inputType)
 
         # pass sink to view
-        # _gtksink = self._model._getGtksink(channelNum)
+        _gtksink = self._model._getGtksink(channelNum)
         # self._view._addVideoView(_gtksink)
+
+        self._view._setVideoView(_gtksink, channelNum)
 
 
 
