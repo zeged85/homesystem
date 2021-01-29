@@ -39,6 +39,33 @@ class gstChannel:
         else:
             print('else', typ)
 
+    def _setCameras(self):
+        def get_ksvideosrc_device_indexes():
+            # https://stackoverflow.com/questions/30440134/list-device-names-available-for-video-capture-from-ksvideosrc-in-gstreamer-1-0
+            device_index = 0
+            video_src = Gst.ElementFactory.make('ksvideosrc')
+            state_change_code = None
+
+            while True:
+                video_src.set_state(Gst.State.NULL)
+                video_src.set_property('device-index', device_index)
+                state_change_code = video_src.set_state(Gst.State.READY)
+                if state_change_code != Gst.StateChangeReturn.SUCCESS:
+                    video_src.set_state(Gst.State.NULL)
+                    break
+                device_index += 1
+            return range(device_index)
+        indexes = get_ksvideosrc_device_indexes()
+
+        stringPipeline = """ksvideosrc device-index=0 ! videoconvert ! queue name=convert ! gtksink name=sink"""                                            
+        p = Gst.parse_launch(stringPipeline) 
+        self._gtksink = p.get_by_name("sink")
+        self._pipeline.add(p)
+        
+
+
+            
+
 
     def _setUDP(self):
         # _bin = Gst.parse_bin_from_description(pipeline, True)
@@ -183,10 +210,22 @@ class gstChannel:
     def _setTestsrc(self):
         stringPipeline = "videotestsrc"
         self._bin = Gst.parse_bin_from_description(stringPipeline, True)
+        tee = Gst.ElementFactory.make("tee", "tee-1")  # - fast, but singleton
+        autovideosink = Gst.ElementFactory.make("autovideosink", "autosink-1")  # - fast, but singleton
+        queue1 = Gst.ElementFactory.make("queue", "queue-1")  # - fast, but singleton
+        queue2 = Gst.ElementFactory.make("queue", "queue-2")  # - fast, but singleton
         self._pipeline.add(self._bin)
         self._pipeline.add(self._gtksink)
+        self._pipeline.add(tee)
+        self._pipeline.add(autovideosink)
+        self._pipeline.add(queue1)
+        self._pipeline.add(queue2)
         # Link the pipeline to the sink that will display the video.
-        self._bin.link(self._gtksink)
+        self._bin.link(tee)
+        tee.link(queue1)
+        queue1.link(self._gtksink)
+        tee.link(queue2)
+        queue2.link(autovideosink)
 
     def _setScreenCapture(self):
         # stringPipeline = "videotestsrc pattern=1"
@@ -417,4 +456,7 @@ class gstChannel:
         elif inputType == 'UDP':
             print('UDP')
             self._setUDP()
+        elif inputType=='USB-Camera':
+            print('camera')
+            self._setCameras()
 

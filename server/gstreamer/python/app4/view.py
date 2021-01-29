@@ -164,9 +164,9 @@ class myView(Gtk.Window):
         # drawingarea = Gtk.DrawingArea()
         video_box = Gtk.Box()
         video_box.set_size_request(200,200)
-        video_widget = gtksink.get_property("widget")
-        video_widget.set_size_request(200, 200)
-        video_box.add(video_widget)
+        # video_widget = gtksink.get_property("widget")
+        # video_widget.set_size_request(200, 200)
+        # video_box.add(video_widget)
         vbox.add(video_box)
 
         hbox_transport = self._createTransportBar()
