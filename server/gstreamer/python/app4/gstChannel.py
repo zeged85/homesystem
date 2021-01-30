@@ -56,6 +56,7 @@ class gstChannel:
                 device_index += 1
             return range(device_index)
         indexes = get_ksvideosrc_device_indexes()
+        print('indexes',indexes)
 
         stringPipeline = """ksvideosrc device-index=0 ! videoconvert ! queue name=convert ! gtksink name=sink"""                                            
         p = Gst.parse_launch(stringPipeline) 
@@ -208,24 +209,77 @@ class gstChannel:
         # decode.link(self._gtksink)
 
     def _setTestsrc(self):
-        stringPipeline = "videotestsrc"
+        # desc = f'videotestsrc ! queue ! decodebin ! videoconvert ! timeoverlay !  x264enc tune=zerolatency ! rtph264pay ! udpsink host=localhost port=5000'
+        desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! udpsink host=localhost port=5000'
+        desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! multiudpsink name=mudpsink'
+        # udpBin = Gst.parse_launch(desc)
+        udpBin = Gst.parse_bin_from_description(desc, True)
+        # return
+        # DEBUG
+
+        stringPipeline = "videotestsrc name=source"
         self._bin = Gst.parse_bin_from_description(stringPipeline, True)
+        # udpsink = Gst.ElementFactory.make("multiudpsink", "udpsink-1")
+        udpsink = udpBin.get_by_name('mudpsink')
+        udpsink.emit("add","localhost",5000)
+        print(udpsink.props.clients)
+        source = self._bin.get_by_name('source')
+        print('dir source', dir(source))
+        source.props.pattern = 0
+        # https://stackoverflow.com/questions/47760477/python-gst-list-all-properties-of-an-element
+        prop_list = udpsink.list_properties()
+        # print(prop_list)
+        for prop in prop_list:
+            # print(prop)
+            gType = str(prop)[7:].split(' ')[0]
+            gName = str(prop).split("'")[1]
+            status = udpsink.get_property(gName)
+            print(gType,gName,status)
+
+        # signal_list = udpsink.g_signal_list_ids()
+        # for sig in signal_list:
+            # print(sig)
+            
+            # .set_property("rotation-z",a) 
+
         tee = Gst.ElementFactory.make("tee", "tee-1")  # - fast, but singleton
-        autovideosink = Gst.ElementFactory.make("autovideosink", "autosink-1")  # - fast, but singleton
-        queue1 = Gst.ElementFactory.make("queue", "queue-1")  # - fast, but singleton
-        queue2 = Gst.ElementFactory.make("queue", "queue-2")  # - fast, but singleton
+        # autovideosink = Gst.ElementFactory.make("autovideosink", "autosink-1")  # - fast, but singleton
+        autovideosink = Gst.ElementFactory.make("ximagesink", "autosink-1")  # - fast, but singleton
+        
+        queue1 = Gst.ElementFactory.make("queue", "queue-1")  
+        queue2 = Gst.ElementFactory.make("queue", "queue-2")
+        queue3 = Gst.ElementFactory.make("queue", "queue-3") 
+        # queue4 = Gst.ElementFactory.make("queue", "queue-4")    
+        # convert = Gst.ElementFactory.make("videoconvert", "convert-1")
+        # encoder = Gst.ElementFactory.make("x264enc", "x264enc-1")
+        # pay = Gst.ElementFactory.make("rtph264pay", "rtph264pay-1")
+            
         self._pipeline.add(self._bin)
         self._pipeline.add(self._gtksink)
         self._pipeline.add(tee)
         self._pipeline.add(autovideosink)
+        # self._pipeline.add(udpsink)
         self._pipeline.add(queue1)
         self._pipeline.add(queue2)
+        self._pipeline.add(queue3)
+        self._pipeline.add(udpBin)
+        # self._pipeline.add(encoder)
+        # self._pipeline.add(pay)
+        # self._pipeline.add(convert)
+        # self._pipeline.add(queue4)
         # Link the pipeline to the sink that will display the video.
         self._bin.link(tee)
         tee.link(queue1)
         queue1.link(self._gtksink)
         tee.link(queue2)
-        queue2.link(autovideosink)
+        queue2.link(udpBin)
+        # convert.link(encoder)
+        # encoder.link(pay)
+        # pay.link(queue4)
+        # queue4.link(udpsink)
+        tee.link(queue3)
+        queue3.link(autovideosink)
+        print('ahoy')
 
     def _setScreenCapture(self):
         # stringPipeline = "videotestsrc pattern=1"

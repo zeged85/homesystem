@@ -156,8 +156,8 @@ class myView(Gtk.Window):
         # channelNumber = len(self._channels)
 
         # Video View
-        widget = GstWidget(gtksink)
-        widget.set_size_request(200, 200)
+        # widget = GstWidget(gtksink)
+        # widget.set_size_request(200, 200)
         vbox = Gtk.VBox()
         # vbox.add(widget)
 
