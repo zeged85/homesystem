@@ -71,6 +71,8 @@ class myView(Gtk.Window):
                 'combobox-input-changed', int(channelNum), str(inputType))
             # if inputType == "youtube":
             #     self._addPathField(channelNum)
+        else:
+            print("channel input off")
 
         return True
 
