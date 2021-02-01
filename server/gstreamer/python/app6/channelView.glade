@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.36.0 -->
+<!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.22"/>
-  <object class="GtkWindow">
-    <property name="can_focus">False</property>
+  <object class="GtkWindow" id="window">
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
+        <property name="can-focus">False</property>
         <child>
           <object class="GtkBox" id="mainControls">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkButton" id="addChannel">
                 <property name="label" translatable="yes">add channel</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -30,8 +30,8 @@
               <object class="GtkButton" id="removeChannel">
                 <property name="label" translatable="yes">remove channel</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -52,19 +52,19 @@
         <child>
           <object class="GtkBox" id="channelBox">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_start">3</property>
-            <property name="margin_end">3</property>
-            <property name="margin_top">3</property>
-            <property name="margin_bottom">3</property>
+            <property name="can-focus">False</property>
+            <property name="margin-start">3</property>
+            <property name="margin-end">3</property>
+            <property name="margin-top">3</property>
+            <property name="margin-bottom">3</property>
             <property name="orientation">vertical</property>
             <child>
               <object class="GtkBox" id="videoViewBox">
-                <property name="width_request">250</property>
-                <property name="height_request">250</property>
+                <property name="width-request">250</property>
+                <property name="height-request">250</property>
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="border_width">5</property>
+                <property name="can-focus">False</property>
+                <property name="border-width">5</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <placeholder/>
@@ -79,16 +79,16 @@
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkButton">
                     <property name="label">gtk-media-stop</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_stock">True</property>
-                    <property name="always_show_image">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="use-stock">True</property>
+                    <property name="always-show-image">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -100,10 +100,10 @@
                   <object class="GtkButton">
                     <property name="label">gtk-media-pause</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_stock">True</property>
-                    <property name="always_show_image">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="use-stock">True</property>
+                    <property name="always-show-image">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -115,10 +115,10 @@
                   <object class="GtkButton">
                     <property name="label">gtk-media-play</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="use_stock">True</property>
-                    <property name="always_show_image">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="use-stock">True</property>
+                    <property name="always-show-image">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -136,13 +136,13 @@
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkComboBoxText" id="source">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="has_entry">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="has-entry">True</property>
                     <items>
                       <item translatable="yes">Test Source</item>
                       <item translatable="yes">RTSP</item>
@@ -150,7 +150,7 @@
                     </items>
                     <child internal-child="entry">
                       <object class="GtkEntry">
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="text" translatable="yes">Camera</property>
                       </object>
                     </child>
@@ -171,8 +171,8 @@
             <child>
               <object class="GtkComboBoxText" id="attribute">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="has_entry">True</property>
+                <property name="can-focus">False</property>
+                <property name="has-entry">True</property>
                 <items>
                   <item translatable="yes">pattern</item>
                   <item translatable="yes">UDP</item>
@@ -180,7 +180,7 @@
                 </items>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="text" translatable="yes">/dev/x01?</property>
                   </object>
                 </child>
@@ -194,16 +194,16 @@
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Host IP:</property>
                       </object>
@@ -216,11 +216,11 @@
                     <child>
                       <object class="GtkEntry">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="halign">end</property>
                         <property name="hexpand">True</property>
-                        <property name="placeholder_text" translatable="yes">10.0.0.1</property>
-                        <property name="input_purpose">url</property>
+                        <property name="placeholder-text" translatable="yes">10.0.0.1</property>
+                        <property name="input-purpose">url</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -238,11 +238,11 @@
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="label" translatable="yes">PORT:</property>
                       </object>
                       <packing>
@@ -254,11 +254,11 @@
                     <child>
                       <object class="GtkEntry">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
+                        <property name="can-focus">True</property>
                         <property name="halign">end</property>
                         <property name="hexpand">True</property>
-                        <property name="placeholder_text" translatable="yes">5000</property>
-                        <property name="input_purpose">digits</property>
+                        <property name="placeholder-text" translatable="yes">5000</property>
+                        <property name="input-purpose">digits</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -283,14 +283,14 @@
             <child>
               <object class="GtkComboBoxText" id="outputs">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="has_entry">True</property>
+                <property name="can-focus">False</property>
+                <property name="has-entry">True</property>
                 <items>
                   <item translatable="yes">multi-udp-sink</item>
                 </items>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                   </object>
                 </child>
               </object>
@@ -301,15 +301,56 @@
               </packing>
             </child>
             <child>
+              <placeholder/>
+            </child>
+            <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkEntry" id="entry1">
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="placeholder_text" translatable="yes">IP</property>
-                    <property name="input_purpose">url</property>
+                    <property name="can-focus">False</property>
+                    <child>
+                      <object class="GtkEntry" id="entry1">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="placeholder-text" translatable="yes">IP</property>
+                        <property name="input-purpose">url</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="entry2">
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="placeholder-text" translatable="yes">PORT</property>
+                        <property name="input-purpose">digits</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton">
+                        <property name="label" translatable="yes">add</property>
+                        <property name="visible">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="receives-default">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -318,11 +359,9 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="entry2">
+                  <object class="GtkListBox" id="list1">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="placeholder_text" translatable="yes">PORT</property>
-                    <property name="input_purpose">digits</property>
+                    <property name="can-focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -331,24 +370,17 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton">
-                    <property name="label" translatable="yes">add</property>
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
+                  <placeholder/>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">6</property>
+                <property name="position">7</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -364,9 +396,6 @@
           <placeholder/>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
-      <placeholder/>
     </child>
   </object>
 </interface>
