@@ -16,6 +16,10 @@ class Handler:
         print("Hello World!")
         self.view.emit("button-addChannel-clicked")
 
+class MainControllsHandler:
+    def on_addChannel_clicked(self, button):
+        print("add channel")
+
 
 class myView(Gtk.Window):
     __gsignals__ = {
@@ -24,12 +28,31 @@ class myView(Gtk.Window):
     def __init__(self, **kw):
         super(myView, self).__init__(
             default_width=100, default_height=100, **kw)
+        
+
+        
         builder = Gtk.Builder()
         builder.add_from_file("channelView.glade")
         builder.connect_signals(Handler(self))
-
-
+  
         window = builder.get_object("window")
+
+
+
+        channelsBox = builder.get_object("channelsBox")
+
+        tBuilder = Gtk.Builder()
+        tBuilder.add_from_file("channelView.glade")
+        tBuilder.connect_signals(Handler(self))
+
+        tChannelsBox = tBuilder.get_object("channelsBox")
+        tChannelBox = tBuilder.get_object("channelBox")
+        tChannelsBox.remove(tChannelBox)
+
+        channelsBox.add(tChannelBox)
+
+
+        #### list
         lst = builder.get_object("list1")
 
         row1 = Gtk.ListBoxRow()
