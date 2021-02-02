@@ -16,6 +16,11 @@ class Handler:
         print("Hello World!")
         self.view.emit("button-addChannel-clicked")
 
+    def on_inputBox_changed(self, box):
+        print("input changed")
+        # print(box.get_selected_row())
+        print(box.get_active_text())
+
 class MainControllsHandler:
     def on_addChannel_clicked(self, button):
         print("add channel")
@@ -32,24 +37,30 @@ class myView(Gtk.Window):
 
         
         builder = Gtk.Builder()
-        builder.add_from_file("channelView.glade")
+        builder.add_from_file("channelView2.glade")
         builder.connect_signals(Handler(self))
   
         window = builder.get_object("window")
 
 
 
-        channelsBox = builder.get_object("channelsBox")
+        self.channelsBox = builder.get_object("channelsBox")
 
-        tBuilder = Gtk.Builder()
-        tBuilder.add_from_file("channelView.glade")
-        tBuilder.connect_signals(Handler(self))
 
-        tChannelsBox = tBuilder.get_object("channelsBox")
-        tChannelBox = tBuilder.get_object("channelBox")
-        tChannelsBox.remove(tChannelBox)
 
-        channelsBox.add(tChannelBox)
+        ### input
+        combobox = builder.get_object("inputBox")
+
+        _inputs = [
+            ["Select input"], ["test-src"], ["local file"], ["DVB"],
+            ["Screen Capture"], ["USB-Camera"], ["youtube"], ["torrent"],
+            ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
+        # listmodel = Gtk.ListStore(str)
+        # append the data in the model
+        for i in range(len(_inputs)):
+            # listmodel.append(self._inputs[i])
+            combobox.append(None,str(_inputs[i]))
+            print(combobox.get_active_text())
 
 
         #### list
@@ -73,6 +84,18 @@ class myView(Gtk.Window):
         lst.add(row2)
         lst.add(row3)
         window.show_all()
+
+
+    def _addVideoView(self):
+        tBuilder = Gtk.Builder()
+        tBuilder.add_from_file("channelView2.glade")
+        tBuilder.connect_signals(Handler(self))
+
+        tChannelsBox = tBuilder.get_object("channelsBox")
+        tChannelBox = tBuilder.get_object("channelBox")
+        tChannelsBox.remove(tChannelBox)
+
+        self.channelsBox.add(tChannelBox)
 
 
         # Gtk.main()

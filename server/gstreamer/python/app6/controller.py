@@ -27,14 +27,13 @@ class myController(object):
 
     def _addVideo(self, button):
         print("add video")
-        return
         # model
         channelNum = self._model._createChannel()
         print(f"channel {channelNum} created")
         # self._channels.append(channel)
         # pass sink to view
         _gtksink = self._model._getGtksink(channelNum)  # TODO remove + dependent
-        self._view._addVideoView(None)
+        self._view._addVideoView()
         # self._view._setVideoView(gtksink, channelNum)
 
 
