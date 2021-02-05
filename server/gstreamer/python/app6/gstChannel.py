@@ -64,10 +64,31 @@ class gstChannel:
         indexes = get_ksvideosrc_device_indexes()
         print('indexes',indexes)
 
+        '''        
         stringPipeline = """ksvideosrc device-index=0 ! videoconvert ! queue name=convert ! gtksink name=sink"""                                            
         p = Gst.parse_launch(stringPipeline) 
         self._gtksink = p.get_by_name("sink")
+        self._pipeline.add(p)'''
+
+        desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! multiudpsink name=mudpsink'
+        udpBin = Gst.parse_bin_from_description(desc, True)
+        udpsink = udpBin.get_by_name('mudpsink')
+        self.udpSink = udpsink
+
+
+        stringPipeline = """ksvideosrc device-index=0 ! videoconvert ! queue ! tee name=t ! gtksink name=sink t. ! queue name=out1"""                                            
+        p = Gst.parse_launch(stringPipeline) 
+        self._gtksink = p.get_by_name("sink")
         self._pipeline.add(p)
+
+        out = p.get_by_name("out1")
+        self._pipeline.add(udpBin)
+        out.link(udpBin)
+
+        # tee = Gst.ElementFactory.make("tee", "tee-1")  # - fast, but singleton
+        
+        # queue1 = Gst.ElementFactory.make("queue", "queue-1")  
+        # queue2 = Gst.ElementFactory.make("queue", "queue-2")
         
 
 
@@ -216,7 +237,7 @@ class gstChannel:
 
     def _setTestsrc(self):
         # desc = f'videotestsrc ! queue ! decodebin ! videoconvert ! timeoverlay !  x264enc tune=zerolatency ! rtph264pay ! udpsink host=localhost port=5000'
-        desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! udpsink host=localhost port=5000'
+        # desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! udpsink host=localhost port=5000'
         desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! multiudpsink name=mudpsink'
         # udpBin = Gst.parse_launch(desc)
         udpBin = Gst.parse_bin_from_description(desc, True)
