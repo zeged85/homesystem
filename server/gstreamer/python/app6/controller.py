@@ -16,9 +16,9 @@ class myController(object):
         self._view = view
         self._model = model
         self._view.connect('button-addChannel-clicked', self._addVideo)
-        # self._view.connect('button-startChannel-clicked', self._startVideo)
+        self._view.connect('button-startChannel-clicked', self._startVideo)
         # self._view.connect('button-stopChannel-clicked', self._stopVideo)
-        # self._view.connect('combobox-input-changed', self._inputChanged)
+        self._view.connect('combobox-input-changed', self._inputChanged)
         # self._view.connect('destroy', self.on_destroy)
 
     def on_destroy(self, win):
@@ -33,7 +33,7 @@ class myController(object):
         # self._channels.append(channel)
         # pass sink to view
         _gtksink = self._model._getGtksink(channelNum)  # TODO remove + dependent
-        self._view._addVideoView()
+        self._view._addVideoView(channelNum)
         # self._view._setVideoView(gtksink, channelNum)
 
 

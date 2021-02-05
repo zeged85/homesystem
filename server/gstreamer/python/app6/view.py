@@ -5,8 +5,9 @@ gi.require_version("Gtk", "3.0")
 
 
 class Handler:
-    def __init__(self,view):
+    def __init__(self,view, channelNumber):
         self.view = view
+        self.channelNumber = channelNumber
 
     def onDestroy(self, *args):
         print("view destroy")
@@ -17,54 +18,80 @@ class Handler:
         self.view.emit("button-addChannel-clicked")
 
     def on_inputBox_changed(self, box):
-        print("input changed")
-        # print(box.get_selected_row())
-        print(box.get_active_text())
+        source = box.get_active_text()
+        print(f"channel {self.channelNumber} input changed to {source}")
+        self.view.emit('combobox-input-changed', int(self.channelNumber), str(source))
 
-class MainControllsHandler:
-    def on_addChannel_clicked(self, button):
-        print("add channel")
+    def on_playButton_clicked(self, button):
+        arg = self.channelNumber
+        print("VIEW: button-startChannel-pressed", arg)
+        self.view.emit('button-startChannel-clicked', int(arg))
+
+    def cameraSourceSelected():
+        pass
+
+    def rtspSourceSelected():
+        pass
+
+    def testSourceSelected():
+        pass
+
+    def localSourceSelected():
+        pass
+
+    def captureSourceSelected():
+        pass
+
+    def youtubeSourceSelected():
+        pass
+
 
 
 class myView(Gtk.Window):
     __gsignals__ = {
-        'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ())
+        'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
+        'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
+        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int, str,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(
             default_width=100, default_height=100, **kw)
+
+        self._channels = {}
+        self.channelNumber = 0
         
 
-        
-        builder = Gtk.Builder()
-        builder.add_from_file("channelView2.glade")
-        builder.connect_signals(Handler(self))
+        self._inputs = ["test-src", "local file", "DVB",
+            "Screen Capture", "USB-Camera", "youtube", "torrent",
+            "UDP", "TCP", "RTSP", "Audio"]
+        self._outputs = ["multi UDP sink"]
+
+        self._attributes = ["file path","ip","port","cameras","protocol","pattern","uri"]
+
+
+        self.builder = Gtk.Builder()
+        self.builder.add_from_file("main.glade")
+        self.builder.connect_signals(Handler(self, self.channelNumber))
   
-        window = builder.get_object("window")
+        self.window = self.builder.get_object("window")
 
 
 
-        self.channelsBox = builder.get_object("channelsBox")
+        self.channelsBox = self.builder.get_object("channelsBox")
+
+
+    
 
 
 
-        ### input
-        combobox = builder.get_object("inputBox")
-
-        _inputs = [
-            ["Select input"], ["test-src"], ["local file"], ["DVB"],
-            ["Screen Capture"], ["USB-Camera"], ["youtube"], ["torrent"],
-            ["UDP"], ["TCP"], ["RTSP"], ["Audio"]]
-        # listmodel = Gtk.ListStore(str)
-        # append the data in the model
-        for i in range(len(_inputs)):
-            # listmodel.append(self._inputs[i])
-            combobox.append(None,str(_inputs[i]))
-            print(combobox.get_active_text())
+        # self.setInputBox(self.builder)
+        # self.setOutputBox(self.builder)
 
 
+        '''
         #### list
-        lst = builder.get_object("list1")
+        lst = self.builder.get_object("sinkList")
 
         row1 = Gtk.ListBoxRow()
         label1 = Gtk.Label("test-1")
@@ -83,21 +110,76 @@ class myView(Gtk.Window):
         lst.add(row1)
         lst.add(row2)
         lst.add(row3)
-        window.show_all()
+        '''
+
+        # window.show_all()
+        self._update()
 
 
-    def _addVideoView(self):
+        # self._hideAttributes()
+
+
+    def _update(self):
+        self.window.show_all()
+
+    def _hideAttributes(self):
+
+        cameraList = self.builder.get_object("cameraList")
+        sourcePort = self.builder.get_object("sourcePort")
+
+        cameraList.hide()
+        sourcePort.hide()
+
+    ### input
+    def setInputBox(self, builder):
+        combobox = builder.get_object("inputBox")
+        for i in range(len(self._inputs)):
+            combobox.append(None,str(self._inputs[i]))
+
+    def setOutputBox(self, builder):
+        combobox = builder.get_object("outputBox")
+        for i in range(len(self._outputs)):
+            combobox.append(None,str(self._outputs[i]))
+
+
+
+
+    def _addVideoView(self, channelNum):
         tBuilder = Gtk.Builder()
-        tBuilder.add_from_file("channelView2.glade")
-        tBuilder.connect_signals(Handler(self))
+        tBuilder.add_from_file("channelView.glade")
+        
+        # self.channelNumber += 1
+        
+        tBuilder.connect_signals(Handler(self, channelNum))
 
-        tChannelsBox = tBuilder.get_object("channelsBox")
         tChannelBox = tBuilder.get_object("channelBox")
+        # remove from old container TODO fix
+        tChannelsBox = tBuilder.get_object("window")
         tChannelsBox.remove(tChannelBox)
 
+        video_box = tBuilder.get_object("videoBox")
+
+        self._channels[channelNum] = {
+            'video_box': video_box
+        }
+
         self.channelsBox.add(tChannelBox)
+
+        self.setInputBox(tBuilder)
+        self.setOutputBox(tBuilder)
 
 
         # Gtk.main()
 
         # print(lst.get_selected_row())
+
+    def _setVideoView(self,gtksink, channelNum):
+        video_box = self._channels.get(channelNum)['video_box']
+        children = video_box.get_children ()
+        for element in children:
+            video_box.remove (element)
+
+        video_widget = gtksink.get_property("widget")
+        video_widget.set_size_request(200, 200)
+        video_box.add(video_widget)
+        self._update()

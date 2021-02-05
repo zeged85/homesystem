@@ -224,9 +224,11 @@ class gstChannel:
         udpsink.emit("add","localhost",5000)
         print(udpsink.props.clients)
         source = self._bin.get_by_name('source')
-        print('dir source', dir(source))
+        # print('dir source', dir(source))
         source.props.pattern = 0
         # https://stackoverflow.com/questions/47760477/python-gst-list-all-properties-of-an-element
+        
+        '''
         prop_list = udpsink.list_properties()
         # print(prop_list)
         for prop in prop_list:
@@ -235,7 +237,7 @@ class gstChannel:
             gName = str(prop).split("'")[1]
             status = udpsink.get_property(gName)
             print(gType,gName,status)
-
+        '''
         # signal_list = udpsink.g_signal_list_ids()
         # for sig in signal_list:
             # print(sig)
@@ -244,7 +246,8 @@ class gstChannel:
 
         tee = Gst.ElementFactory.make("tee", "tee-1")  # - fast, but singleton
         # autovideosink = Gst.ElementFactory.make("autovideosink", "autosink-1")  # - fast, but singleton
-        autovideosink = Gst.ElementFactory.make("ximagesink", "autosink-1")  # - fast, but singleton
+        # autovideosink = Gst.ElementFactory.make("ximagesink", "autosink-1")  # - fast, but singleton
+        autovideosink = Gst.ElementFactory.make("glimagesink", "autosink-1")  # - fast, but singleton
         
         queue1 = Gst.ElementFactory.make("queue", "queue-1")  
         queue2 = Gst.ElementFactory.make("queue", "queue-2")
