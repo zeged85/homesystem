@@ -29,3 +29,6 @@ class myModel:
 
     def _setInput(self, channelNum, inputType):
         self._channels[channelNum]._setInput(inputType)
+
+    def _addClient(self, channelNum, ip, port):
+        self._channels[channelNum]._addClient(ip,port)

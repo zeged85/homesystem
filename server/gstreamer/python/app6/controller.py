@@ -1,11 +1,11 @@
 # https://riptutorial.com/gtk3/example/24777/embed-a-video-in-a-gtk-window-in-python3
-from gi.repository import Gtk, Gst  # ,GObject
 import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gst', '1.0')
+from gi.repository import Gtk, Gst  # ,GObject
 from view import myView
 from model import myModel
 
-gi.require_version('Gtk', '3.0')
-gi.require_version('Gst', '1.0')
 
 Gst.init(None)
 Gst.init_check(None)
@@ -17,9 +17,10 @@ class myController(object):
         self._model = model
         self._view.connect('button-addChannel-clicked', self._addVideo)
         self._view.connect('button-startChannel-clicked', self._startVideo)
-        # self._view.connect('button-stopChannel-clicked', self._stopVideo)
+        self._view.connect('button-stopChannel-clicked', self._stopVideo)
         self._view.connect('combobox-input-changed', self._inputChanged)
         # self._view.connect('destroy', self.on_destroy)
+        self._view.connect('button-addClient-clicked', self._addClient)
 
     def on_destroy(self, win):
         # print("bye bye")
@@ -64,6 +65,10 @@ class myController(object):
         # self._view._addVideoView(_gtksink)
 
         self._view._setVideoView(_gtksink, channelNum)
+
+    def _addClient(self, button, channelNum, ip, port):
+        print(f"controller: channel {channelNum} add client", ip, port)
+        self._model._addClient(channelNum, ip,port)
 
 
 

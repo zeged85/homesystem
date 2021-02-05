@@ -39,6 +39,12 @@ class gstChannel:
         else:
             print('else', typ)
 
+    def _addClient(self, ip, port):
+        print(f"gst-channel: adding client {ip} {port}")
+        # self.udpSink.emit("add","localhost",5000)
+        self.udpSink.emit("add",ip,int(port))
+        print(self.udpSink.props.clients)
+
     def _setCameras(self):
         def get_ksvideosrc_device_indexes():
             # https://stackoverflow.com/questions/30440134/list-device-names-available-for-video-capture-from-ksvideosrc-in-gstreamer-1-0
@@ -221,7 +227,8 @@ class gstChannel:
         self._bin = Gst.parse_bin_from_description(stringPipeline, True)
         # udpsink = Gst.ElementFactory.make("multiudpsink", "udpsink-1")
         udpsink = udpBin.get_by_name('mudpsink')
-        udpsink.emit("add","localhost",5000)
+        self.udpSink = udpsink
+        # udpsink.emit("add","localhost",5000)
         print(udpsink.props.clients)
         source = self._bin.get_by_name('source')
         # print('dir source', dir(source))

@@ -1,13 +1,14 @@
 import gi
+gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, GObject
 
-gi.require_version("Gtk", "3.0")
 
 
 class Handler:
-    def __init__(self,view, channelNumber):
+    def __init__(self,view, channelNumber, builder):
         self.view = view
         self.channelNumber = channelNumber
+        self.builder = builder
 
     def onDestroy(self, *args):
         print("view destroy")
@@ -26,6 +27,60 @@ class Handler:
         arg = self.channelNumber
         print("VIEW: button-startChannel-pressed", arg)
         self.view.emit('button-startChannel-clicked', int(arg))
+
+    def on_stopButton_clicked(self, button):
+        arg = self.channelNumber
+        print("VIEW: button-stopChannel-pressed", arg)
+        self.view.emit('button-stopChannel-clicked', int(arg))
+
+    def on_addClient_clicked(self, button):
+        # get ip, port fields and client list
+        parent = button.get_parent()
+        # print(parent)
+        ipWidget = self.builder.get_object("sinkIP")
+        portWidget = self.builder.get_object("sinkPort")
+        ip = ipWidget.get_text()
+        port = portWidget.get_text()
+        print(ip, port)
+
+        # check ip
+        import socket
+        try:
+            if ip != "localhost":
+                socket.inet_aton(ip)
+            # legal
+            print('legal ip')
+        except socket.error:
+            # Not legal
+            print('invalid ip')
+            return
+
+        # check port
+
+        try:
+            intPort = int(port)
+            if intPort < 0 or intPort > 65536:
+                assert()
+        except Exception as e:
+            print('invalid port')
+            return
+        
+        clientList = self.builder.get_object("clientList")
+
+        row1 = Gtk.ListBoxRow()
+        label1 = Gtk.Label(f"{ip}:{port}")
+        row1.add(label1)
+
+        clientList.add(row1)
+
+        self.view._update()
+
+       
+        self.view.emit('button-addClient-clicked', int(self.channelNumber), ip, port)
+
+        
+
+
 
     def cameraSourceSelected():
         pass
@@ -52,7 +107,8 @@ class myView(Gtk.Window):
         'button-addChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, ()),
         'button-startChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
         'button-stopChannel-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int,)),
-        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int, str,))
+        'combobox-input-changed': (GObject.SignalFlags.RUN_FIRST, None, (int, str,)),
+        'button-addClient-clicked': (GObject.SignalFlags.RUN_FIRST, None, (int, str, str,))
     }
     def __init__(self, **kw):
         super(myView, self).__init__(
@@ -72,7 +128,7 @@ class myView(Gtk.Window):
 
         self.builder = Gtk.Builder()
         self.builder.add_from_file("main.glade")
-        self.builder.connect_signals(Handler(self, self.channelNumber))
+        self.builder.connect_signals(Handler(self, self.channelNumber, self.builder))
   
         self.window = self.builder.get_object("window")
 
@@ -150,7 +206,7 @@ class myView(Gtk.Window):
         
         # self.channelNumber += 1
         
-        tBuilder.connect_signals(Handler(self, channelNum))
+        tBuilder.connect_signals(Handler(self, channelNum, tBuilder))
 
         tChannelBox = tBuilder.get_object("channelBox")
         # remove from old container TODO fix
