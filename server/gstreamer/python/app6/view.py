@@ -200,6 +200,7 @@ class myView(Gtk.Window):
 
 
 
+    # add a new gst channel
     def _addVideoView(self, channelNum):
         tBuilder = Gtk.Builder()
         tBuilder.add_from_file("channelView.glade")
@@ -223,6 +224,10 @@ class myView(Gtk.Window):
 
         self.setInputBox(tBuilder)
         self.setOutputBox(tBuilder)
+
+        # hide attributes
+        tPort = tBuilder.get_object("sourcePort")
+        
 
 
         # Gtk.main()

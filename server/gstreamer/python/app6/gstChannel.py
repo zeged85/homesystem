@@ -157,12 +157,7 @@ class gstChannel:
 
     def _setLocalFile(self):
         print('opening file')
-        # import tkinter as tk
-        # from tkinter import filedialog
 
-        root = tk.Tk()
-        root.withdraw()
-        # file_path = filedialog.askopenfilename()
         # filepath = ""
         location = "C:/Projects/homesystem/server/gstreamer/python/app1/examples/example.mp4"
         # print(file_path)
@@ -355,7 +350,29 @@ class gstChannel:
         source.link(convert)
         convert.link(scale)
         scale.link(filter)
-        filter.link(self._gtksink)
+        # filter.link(self._gtksink)
+
+
+        # mudp tee
+        desc = f'videoconvert ! queue ! x264enc tune=zerolatency ! queue ! rtph264pay ! queue ! multiudpsink name=mudpsink'
+        udpBin = Gst.parse_bin_from_description(desc, True)
+        udpsink = udpBin.get_by_name('mudpsink')
+        self.udpSink = udpsink
+
+        tee = Gst.ElementFactory.make("tee", "tee-1")
+        queue1 = Gst.ElementFactory.make("queue", "queue-1")  
+        queue2 = Gst.ElementFactory.make("queue", "queue-2")
+        self._pipeline.add(tee)
+        self._pipeline.add(queue1)
+        self._pipeline.add(queue2)
+        self._pipeline.add(udpBin)
+
+        filter.link(tee)
+        tee.link(queue1)
+        tee.link(queue2)
+
+        queue1.link(self._gtksink)
+        queue2.link(udpBin)
 
     def _setYoutube2(self):
         # import subprocess
